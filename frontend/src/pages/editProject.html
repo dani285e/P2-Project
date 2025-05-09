@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rediger Projekt</title>
+    <style>
+      /* Grundlæggende styling */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+
+      /* Navbar styling */
+      .navbar {
+        background-color: #1976d2;
+        color: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .navbar h1 {
+        margin: 0;
+      }
+
+      .nav-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+        margin-right: 2rem;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 0;
+        font-weight: 500;
+        transition: opacity 0.2s;
+        border-bottom: 2px solid transparent;
+      }
+
+      .nav-link:hover {
+        opacity: 0.9;
+        border-bottom: 2px solid white;
+      }
+
+      .nav-link.active {
+        border-bottom: 2px solid white;
+        font-weight: bold;
+      }
+
+      .back-button {
+        text-decoration: none;
+        color: white;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+      }
+
+      .back-button:hover {
+        text-decoration: underline;
+      }
+
+      .back-button::before {
+        content: "←";
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+      }
+
+      /* Container og card styling */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .card-header {
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .card h2 {
+        margin: 0;
+        color: #1976d2;
+      }
+
+      /* Formular styling */
+      form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #555;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="date"],
+      textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+      }
+
+      input[type="text"]:focus,
+      input[type="number"]:focus,
+      input[type="date"]:focus,
+      textarea:focus {
+        border-color: #1976d2;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+      }
+
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      /* Checkbox styling */
+      .checkbox-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .checkbox-container input[type="checkbox"] {
+        margin-right: 0.5rem;
+        width: 18px;
+        height: 18px;
+      }
+
+      /* Inspektioner styling */
+      .inspections {
+        grid-column: span 2;
+        background-color: #f0f7ff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        border-left: 3px solid #2196f3;
+      }
+
+      .inspection-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .inspection-checkbox {
+        margin-right: 1rem;
+        width: 18px;
+        height: 18px;
+      }
+
+      .inspection-date {
+        margin-left: 1rem;
+      }
+
+      .date-container {
+        display: flex;
+        align-items: center;
+        transition: opacity 0.3s;
+      }
+
+      .date-container.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      /* Knap styling */
+      .actions {
+        grid-column: span 2;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      button,
+      .btn-primary,
+      .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border: none;
+      }
+
+      .btn-primary {
+        background-color: #1976d2;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: #1565c0;
+      }
+
+      .btn-secondary {
+        background-color: #9e9e9e;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background-color: #757575;
+      }
+
+      /* Responsivt design */
+      @media (max-width: 768px) {
+        form {
+          grid-template-columns: 1fr;
+        }
+
+        .inspections,
+        .actions {
+          grid-column: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="nav-container">
+        <h1>Projektstyringssystem</h1>
+        <div class="nav-links">
+          <a href="/" class="nav-link active">Projekter</a>
+          <a href="/employees" class="nav-link">Medarbejdere</a>
+          <a href="/machines" class="nav-link">Maskiner</a>
+          <a href="/bookings" class="nav-link">Bookinger</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+          <h2>Rediger Projekt</h2>
+          <a href="javascript:history.back()" class="back-button">Tilbage</a>
+        </div>
+
+        <form id="edit-project-form">
+          <div class="form-group">
+            <label for="project-id">Projekt ID</label>
+            <input
+              type="text"
+              id="project-id"
+              name="projectID"
+              required
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="project-name">Projekt Navn</label>
+            <input type="text" id="project-name" name="name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="customer">Kunde</label>
+            <input type="text" id="customer" name="customer" required />
+          </div>
+
+          <div class="form-group">
+            <label for="price">Pris (DKK)</label>
+            <input
+              type="number"
+              id="price"
+              name="price"
+              min="0"
+              step="1000"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="start-date">Startdato</label>
+            <input type="date" id="start-date" name="startDate" required />
+          </div>
+
+          <div class="form-group">
+            <label for="deadline">Deadline</label>
+            <input type="date" id="deadline" name="deadline" required />
+          </div>
+
+          <div class="form-group" style="grid-column: span 2">
+            <label for="description">Beskrivelse</label>
+            <textarea id="description" name="description"></textarea>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-container">
+              <input
+                type="checkbox"
+                id="is-class-project"
+                name="isClassProject"
+              />
+              <label for="is-class-project">Klassifikationsprojekt</label>
+            </div>
+          </div>
+
+          <div
+            id="inspections-container"
+            class="inspections"
+            style="display: none"
+          >
+            <h3>Inspektioner</h3>
+
+            <div class="inspection-row">
+              <input
+                type="checkbox"
+                id="first-inspection"
+                name="firstInspection"
+                class="inspection-checkbox"
+              />
+              <label for="first-inspection">1. Inspektion</label>
+              <div class="date-container disabled">
+                <input
+                  type="date"
+                  id="first-inspection-date"
+                  name="firstInspectionDate"
+                  class="inspection-date"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <div class="inspection-row">
+              <input
+                type="checkbox"
+                id="wps-wpqr"
+                name="wpsWpqr"
+                class="inspection-checkbox"
+              />
+              <label for="wps-wpqr">WPS/WPQR</label>
+              <div class="date-container disabled">
+                <input
+                  type="date"
+                  id="wps-wpqr-date"
+                  name="wpsWpqrDate"
+                  class="inspection-date"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <div class="inspection-row">
+              <input
+                type="checkbox"
+                id="ndt"
+                name="ndt"
+                class="inspection-checkbox"
+              />
+              <label for="ndt">NDT</label>
+              <div class="date-container disabled">
+                <input
+                  type="date"
+                  id="ndt-date"
+                  name="ndtDate"
+                  class="inspection-date"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <div class="inspection-row">
+              <input
+                type="checkbox"
+                id="final-inspection"
+                name="finalInspection"
+                class="inspection-checkbox"
+              />
+              <label for="final-inspection">Final Inspection</label>
+              <div class="date-container disabled">
+                <input
+                  type="date"
+                  id="final-inspection-date"
+                  name="finalInspectionDate"
+                  class="inspection-date"
+                  disabled
+                />
+              </div>
+            </div>
+
+            <div class="inspection-row">
+              <input
+                type="checkbox"
+                id="report"
+                name="report"
+                class="inspection-checkbox"
+              />
+              <label for="report">Report</label>
+              <div class="date-container disabled">
+                <input
+                  type="date"
+                  id="report-date"
+                  name="reportDate"
+                  class="inspection-date"
+                  disabled
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" id="btn-cancel" class="btn-secondary">
+              Annuller
+            </button>
+            <button type="submit" class="btn-primary">Gem Ændringer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module">
+      import { getProjectById, updateProject } from "../js/projectOverview.js";
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get("id");
+
+        if (!projectId) {
+          alert("Intet projekt-ID angivet!");
+          window.location.href = "/";
+          return;
+        }
+
+        try {
+          const project = await getProjectById(projectId);
+          populateForm(project);
+          setupEventListeners();
+        } catch (error) {
+          alert(`Fejl ved indlæsning af projekt: ${error.message}`);
+          window.location.href = "/";
+        }
+      });
+
+      function populateForm(project) {
+        document.getElementById("project-id").value = project.projectID;
+        document.getElementById("project-name").value = project.name;
+        document.getElementById("customer").value = project.customer;
+        document.getElementById("price").value = project.price;
+        document.getElementById("description").value =
+          project.description || "";
+
+        // Set dates (format YYYY-MM-DD for input[type=date])
+        document.getElementById("start-date").value = formatDateForInput(
+          project.startDate
+        );
+        document.getElementById("deadline").value = formatDateForInput(
+          project.deadline
+        );
+
+        // Handle class project and inspections
+        const isClassProjectCheckbox =
+          document.getElementById("is-class-project");
+        isClassProjectCheckbox.checked = project.isClassProject;
+
+        // Show/hide inspections based on isClassProject
+        document.getElementById("inspections-container").style.display =
+          project.isClassProject ? "block" : "none";
+
+        // Set inspection checkboxes and dates if available
+        if (project.inspections) {
+          setInspection(
+            "first-inspection",
+            "first-inspection-date",
+            project.inspections.firstInspection
+          );
+          setInspection(
+            "wps-wpqr",
+            "wps-wpqr-date",
+            project.inspections.wpsWpqr
+          );
+          setInspection("ndt", "ndt-date", project.inspections.ndt);
+          setInspection(
+            "final-inspection",
+            "final-inspection-date",
+            project.inspections.finalInspection
+          );
+          setInspection("report", "report-date", project.inspections.report);
+        }
+      }
+
+      function setupEventListeners() {
+        // Handle class project checkbox toggle
+        document
+          .getElementById("is-class-project")
+          .addEventListener("change", function () {
+            document.getElementById("inspections-container").style.display =
+              this.checked ? "block" : "none";
+          });
+
+        // Set up inspection checkbox event listeners
+        const inspectionCheckboxes = document.querySelectorAll(
+          ".inspection-checkbox"
+        );
+        inspectionCheckboxes.forEach((checkbox) => {
+          checkbox.addEventListener("change", function () {
+            const dateInputId = this.id + "-date";
+            const dateContainer =
+              document.getElementById(dateInputId).parentElement;
+            const dateInput = document.getElementById(dateInputId);
+
+            if (this.checked) {
+              dateContainer.classList.remove("disabled");
+              dateInput.disabled = false;
+            } else {
+              dateContainer.classList.add("disabled");
+              dateInput.disabled = true;
+              dateInput.value = "";
+            }
+          });
+        });
+
+        // Handle cancel button
+        document
+          .getElementById("btn-cancel")
+          .addEventListener("click", function () {
+            window.history.back();
+          });
+
+        // Handle form submission
+        document
+          .getElementById("edit-project-form")
+          .addEventListener("submit", handleFormSubmit);
+      }
+
+      async function handleFormSubmit(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const projectId = document.getElementById("project-id").value;
+
+        const projectData = {
+          projectID: projectId,
+          name: form.name.value,
+          customer: form.customer.value,
+          description: form.description.value,
+          startDate: form.startDate.value,
+          deadline: form.deadline.value,
+          price: parseFloat(form.price.value),
+          isClassProject: form.isClassProject.checked,
+        };
+
+        // Add inspections if class project
+        if (projectData.isClassProject) {
+          projectData.inspections = {
+            firstInspection: getInspectionData(
+              "first-inspection",
+              "first-inspection-date"
+            ),
+            wpsWpqr: getInspectionData("wps-wpqr", "wps-wpqr-date"),
+            ndt: getInspectionData("ndt", "ndt-date"),
+            finalInspection: getInspectionData(
+              "final-inspection",
+              "final-inspection-date"
+            ),
+            report: getInspectionData("report", "report-date"),
+          };
+        }
+
+        try {
+          await updateProject(projectId, projectData);
+          alert("Projektet er opdateret!");
+          window.location.href = `/viewProject?id=${projectId}`;
+        } catch (error) {
+          alert(`Fejl ved opdatering af projekt: ${error.message}`);
+        }
+      }
+
+      // Helper Functions
+      function formatDateForInput(dateString) {
+        const date = new Date(dateString);
+        return date.toISOString().split("T")[0];
+      }
+
+      function setInspection(checkboxId, dateInputId, inspectionData) {
+        if (!inspectionData) return;
+
+        const checkbox = document.getElementById(checkboxId);
+        const dateInput = document.getElementById(dateInputId);
+        const dateContainer = dateInput.parentElement;
+
+        checkbox.checked = inspectionData.selected;
+
+        if (inspectionData.selected && inspectionData.date) {
+          dateInput.value = formatDateForInput(inspectionData.date);
+          dateContainer.classList.remove("disabled");
+          dateInput.disabled = false;
+        } else {
+          dateContainer.classList.add("disabled");
+          dateInput.disabled = true;
+        }
+      }
+
+      function getInspectionData(checkboxId, dateInputId) {
+        const checkbox = document.getElementById(checkboxId);
+        const dateInput = document.getElementById(dateInputId);
+
+        return {
+          selected: checkbox.checked,
+          date: checkbox.checked ? dateInput.value : null,
+        };
+      }
+    </script>
+  </body>
+</html>

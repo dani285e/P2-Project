@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medarbejderoversigt</title>
+    <link rel="stylesheet" href="../styles/projectOverview.css" />
+    <!-- Genbrug samme styling -->
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+      .navbar {
+        background-color: #1976d2;
+        color: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .navbar h1 {
+        margin: 0;
+      }
+      .nav-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+        margin-right: 2rem;
+      }
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 0;
+        font-weight: 500;
+        transition: opacity 0.2s;
+        border-bottom: 2px solid transparent;
+      }
+      .nav-link:hover {
+        opacity: 0.9;
+        border-bottom: 2px solid white;
+      }
+      .nav-link.active {
+        border-bottom: 2px solid white;
+        font-weight: bold;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+      .card h2 {
+        margin: 0;
+        color: #1976d2;
+      }
+      .button {
+        display: inline-block;
+        background-color: #1976d2;
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        font-weight: bold;
+        transition: background-color 0.2s;
+      }
+      .button:hover {
+        background-color: #1565c0;
+      }
+      .button-green {
+        background-color: #4caf50;
+      }
+      .button-green:hover {
+        background-color: #388e3c;
+      }
+      .search-sort-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      .search-container {
+        flex: 1;
+        max-width: 500px;
+        display: flex;
+      }
+      .search-container input {
+        flex: 1;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-right: none;
+        border-radius: 4px 0 0 4px;
+        font-size: 1rem;
+      }
+      .search-container button {
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        padding: 0.75rem 1rem;
+        border-radius: 0 4px 4px 0;
+        cursor: pointer;
+      }
+      .sort-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .sort-container select {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        background-color: white;
+        min-width: 200px;
+      }
+      .sort-direction {
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 0.75rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        white-space: nowrap;
+      }
+      /* For at få tabellen samme look som project-tabellen */
+      .employee-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+      .employee-table th,
+      .employee-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+      .employee-table th {
+        background-color: #f5f5f5;
+        font-weight: 600;
+      }
+      .employee-table tr:hover {
+        background-color: #f9f9f9;
+      }
+      /* Button Styles */
+      .btn-view,
+      .btn-edit,
+      .btn-delete {
+        padding: 0.3rem 0.5rem;
+        margin-right: 0.5rem;
+        font-size: 0.9rem;
+      }
+      .btn-view {
+        background-color: #2196f3;
+      }
+      .btn-edit {
+        background-color: #ff9800;
+      }
+      .btn-delete {
+        background-color: #f44336;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="nav-container">
+        <h1>Projektstyringssystem</h1>
+        <div class="nav-links">
+          <a href="/" class="nav-link">Projekter</a>
+          <a href="/employees" class="nav-link active">Medarbejdere</a>
+          <a href="/machines" class="nav-link">Maskiner</a>
+          <a href="/bookings" class="nav-link">Bookinger</a>
+        </div>
+      </div>
+      <a href="/create-employee" class="button button-green"
+        >Opret Ny Medarbejder</a
+      >
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+          <h2>Medarbejderoversigt</h2>
+        </div>
+
+        <div class="search-sort-container">
+          <div class="search-container">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Søg efter medarbejdernummer eller navn..."
+            />
+            <button id="search-button">Søg</button>
+          </div>
+
+          <div class="sort-container">
+            <select id="sort-field">
+              <option value="employeeNumber">
+                Sortér efter Medarbejdernummer
+              </option>
+              <option value="name">Sortér efter Navn</option>
+            </select>
+            <button
+              class="sort-direction"
+              id="sort-direction"
+              title="Skift sorteringsretning"
+            >
+              Stigende (A-Å)
+            </button>
+          </div>
+        </div>
+
+        <div id="employee-list">
+          <p>Indlæser medarbejdere...</p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        getEmployees,
+        renderEmployees,
+        deleteEmployee,
+      } from "../js/employeeService.js";
+
+      // Define global functions for employee actions
+      window.deleteEmployee = deleteEmployee;
+      window.viewEmployee = (id) => {
+        window.location.href = `/viewEmployee?id=${id}`;
+      };
+      window.editEmployee = (id) => {
+        window.location.href = `/editEmployee?id=${id}`;
+      };
+
+      // State variables for sorting and filtering
+      let allEmployees = [];
+      let sortField = "employeeNumber";
+      let sortDirection = "asc";
+      let searchQuery = "";
+
+      // Function to update sort button text
+      function updateSortButtonText() {
+        const sortDirectionButton = document.getElementById("sort-direction");
+        const buttonText =
+          sortDirection === "asc" ? "Stigende (A-Å)" : "Faldende (Å-A)";
+        sortDirectionButton.textContent = buttonText;
+      }
+
+      // Function to filter and sort employees
+      function filterAndSortEmployees() {
+        let filteredEmployees = [...allEmployees];
+
+        // Apply search filter if query exists
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          filteredEmployees = filteredEmployees.filter(
+            (employee) =>
+              (employee.employeeNumber &&
+                employee.employeeNumber.toLowerCase().includes(query)) ||
+              (employee.name && employee.name.toLowerCase().includes(query))
+          );
+        }
+
+        // Sort employees
+        filteredEmployees.sort((a, b) => {
+          let comparison = 0;
+
+          // String comparison with natural sorting (for strings containing numbers)
+          const valA = (a[sortField] || "").toString();
+          const valB = (b[sortField] || "").toString();
+          comparison = valA.localeCompare(valB, undefined, {
+            numeric: true,
+            sensitivity: "base",
+          });
+
+          // Apply sort direction
+          return sortDirection === "asc" ? comparison : -comparison;
+        });
+
+        // Render employees
+        const employeeList = document.getElementById("employee-list");
+        renderEmployees(filteredEmployees, employeeList);
+
+        // Add event listeners to action buttons
+        document.querySelectorAll(".btn-view").forEach((btn) => {
+          btn.addEventListener("click", () =>
+            window.viewEmployee(btn.dataset.id)
+          );
+        });
+
+        document.querySelectorAll(".btn-edit").forEach((btn) => {
+          btn.addEventListener("click", () =>
+            window.editEmployee(btn.dataset.id)
+          );
+        });
+
+        document.querySelectorAll(".btn-delete").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            if (await deleteEmployee(btn.dataset.id)) {
+              // Reload employees after successful deletion
+              allEmployees = await getEmployees();
+              filterAndSortEmployees();
+            }
+          });
+        });
+      }
+
+      // Initialize event listeners
+      document.addEventListener("DOMContentLoaded", async () => {
+        // Load all employees
+        allEmployees = await getEmployees();
+        filterAndSortEmployees();
+
+        // Update sort button text initially
+        updateSortButtonText();
+
+        // Set up search
+        const searchInput = document.getElementById("search-input");
+        const searchButton = document.getElementById("search-button");
+
+        searchInput.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            searchQuery = searchInput.value.trim();
+            filterAndSortEmployees();
+          }
+        });
+
+        searchButton.addEventListener("click", () => {
+          searchQuery = searchInput.value.trim();
+          filterAndSortEmployees();
+        });
+
+        // Set up sorting
+        const sortFieldSelect = document.getElementById("sort-field");
+        const sortDirectionButton = document.getElementById("sort-direction");
+
+        sortFieldSelect.addEventListener("change", () => {
+          sortField = sortFieldSelect.value;
+          // Reset sort direction to ascending when changing sort field
+          sortDirection = "asc";
+          updateSortButtonText();
+          filterAndSortEmployees();
+        });
+
+        sortDirectionButton.addEventListener("click", () => {
+          sortDirection = sortDirection === "asc" ? "desc" : "asc";
+          updateSortButtonText();
+          filterAndSortEmployees();
+        });
+      });
+    </script>
+
+    <!-- Debug script -->
+    <script>
+      // Funktion til at teste API-kald
+      async function testAPI() {
+        try {
+          console.log("Testing API call to /api/employees");
+          const response = await fetch("/api/employees");
+          const responseText = await response.text();
+
+          console.log("Response status:", response.status);
+          console.log("Response headers:", response.headers);
+          console.log("Raw response text:", responseText);
+
+          try {
+            const data = JSON.parse(responseText);
+            console.log("Parsed data:", data);
+
+            if (data.success && data.data) {
+              console.log("Number of employees:", data.data.length);
+            }
+          } catch (parseError) {
+            console.error("Error parsing JSON:", parseError);
+          }
+        } catch (error) {
+          console.error("Error fetching employees:", error);
+        }
+      }
+
+      // Kører testen når siden er helt indlæst
+      window.addEventListener("load", testAPI);
+    </script>
+  </body>
+</html>

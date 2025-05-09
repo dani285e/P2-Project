@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maskine Oversigt</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+      .navbar {
+        background-color: #1976d2;
+        color: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .navbar h1 {
+        margin: 0;
+      }
+      .nav-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+        margin-right: 2rem;
+      }
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 0;
+        font-weight: 500;
+        transition: opacity 0.2s;
+        border-bottom: 2px solid transparent;
+      }
+      .nav-link:hover {
+        opacity: 0.9;
+        border-bottom: 2px solid white;
+      }
+      .nav-link.active {
+        border-bottom: 2px solid white;
+        font-weight: bold;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+      .card h2 {
+        margin: 0;
+        color: #1976d2;
+      }
+      .button {
+        display: inline-block;
+        background-color: #1976d2;
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        font-weight: bold;
+        transition: background-color 0.2s;
+        cursor: pointer;
+      }
+      .button:hover {
+        background-color: #1565c0;
+      }
+      .button-green {
+        background-color: #4caf50;
+      }
+      .button-green:hover {
+        background-color: #388e3c;
+      }
+      .button-red {
+        background-color: #f44336;
+      }
+      .button-red:hover {
+        background-color: #d32f2f;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+      th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+      }
+      tr:hover {
+        background-color: #f9f9f9;
+      }
+      .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: bold;
+      }
+      .status-ledig {
+        background-color: #e8f5e9;
+        color: #388e3c;
+      }
+      .status-optaget {
+        background-color: #ffebee;
+        color: #d32f2f;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+      .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 2rem;
+        border-radius: 8px;
+        max-width: 500px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .close-button {
+        float: right;
+        cursor: pointer;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .close-button:hover {
+        color: #777;
+      }
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+      .form-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .btn-secondary {
+        background-color: #9e9e9e;
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        font-weight: bold;
+        transition: background-color 0.2s;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-secondary:hover {
+        background-color: #757575;
+      }
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        font-style: italic;
+        color: #777;
+      }
+      .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .action-button {
+        padding: 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        border: none;
+        background-color: transparent;
+        transition: background-color 0.2s;
+      }
+      .action-button:hover {
+        background-color: #f0f0f0;
+      }
+      .edit-button {
+        color: white;
+        background-color: #ff9800;
+      }
+      .delete-button {
+        color: white;
+        background-color: #f44336;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="nav-container">
+        <h1>Projektstyringssystem</h1>
+        <div class="nav-links">
+          <a href="/" class="nav-link">Projekter</a>
+          <a href="/employees" class="nav-link">Medarbejdere</a>
+          <a href="/machines" class="nav-link active">Maskiner</a>
+          <a href="/bookings" class="nav-link">Bookinger</a>
+        </div>
+      </div>
+      <a id="createMachineBtn" class="button button-green">
+        Opret Ny Maskine
+      </a>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+          <h2>Maskine Oversigt</h2>
+        </div>
+        <div id="machine-list">
+          <p class="loading">Indlæser maskiner...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for opret/rediger maskine -->
+    <div id="machineModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button" id="closeModal">&times;</span>
+        <h2 id="modalTitle">Opret Ny Maskine</h2>
+        <form id="machineForm" method="post" action="javascript:void(0);">
+          <input type="hidden" id="machineId" name="machineId" />
+          <div class="form-group">
+            <label for="machineName">Maskine Navn*</label>
+            <input type="text" id="machineName" name="machineName" required />
+          </div>
+          <div class="form-buttons">
+            <button type="button" class="btn-secondary" id="cancelBtn">
+              Annuller
+            </button>
+            <button type="submit" class="button button-green">Gem</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // DOM elementer
+      const machineList = document.getElementById("machine-list");
+      const createMachineBtn = document.getElementById("createMachineBtn");
+      const machineModal = document.getElementById("machineModal");
+      const closeModal = document.getElementById("closeModal");
+      const cancelBtn = document.getElementById("cancelBtn");
+      const machineForm = document.getElementById("machineForm");
+      const modalTitle = document.getElementById("modalTitle");
+      const machineId = document.getElementById("machineId");
+      const machineName = document.getElementById("machineName");
+
+      // Eventlisteners
+      createMachineBtn.addEventListener("click", openCreateModal);
+      closeModal.addEventListener("click", closeModalHandler);
+      cancelBtn.addEventListener("click", closeModalHandler);
+      machineForm.addEventListener("submit", saveMachine);
+      document.addEventListener("DOMContentLoaded", loadMachines);
+
+      // API URL
+      const API_URL = "/api";
+
+      // Hent alle maskiner
+      async function loadMachines() {
+        try {
+          const response = await fetch(`${API_URL}/machines`);
+          const result = await response.json();
+
+          let machines = [];
+          if (result.success && Array.isArray(result.data)) {
+            machines = result.data;
+          } else if (Array.isArray(result)) {
+            machines = result;
+          } else {
+            throw new Error("Uventet dataformat returneret fra API");
+          }
+
+          renderMachineList(machines);
+        } catch (error) {
+          console.error("Fejl ved hentning af maskiner:", error);
+          machineList.innerHTML = `<p>Der opstod en fejl ved hentning af maskiner: ${error.message}</p>`;
+        }
+      }
+
+      // Vis maskiner i tabellen
+      function renderMachineList(machines) {
+        if (machines.length === 0) {
+          machineList.innerHTML =
+            "<p>Ingen maskiner fundet. Opret en ny maskine for at komme i gang.</p>";
+          return;
+        }
+
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>Navn</th>
+                <th>Status</th>
+                <th>Handlinger</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        machines.forEach((machine) => {
+          const statusClass =
+            machine.status === "Ledig" ? "status-ledig" : "status-optaget";
+
+          html += `
+            <tr>
+              <td>${machine.name}</td>
+              <td><span class="status-badge ${statusClass}">${machine.status}</span></td>
+              <td class="action-buttons">
+                <button class="action-button edit-button" onclick="editMachine('${machine._id}', '${machine.name}')">
+                  <i class="fas fa-edit"></i> Rediger
+                </button>
+                <button class="action-button delete-button" onclick="deleteMachine('${machine._id}', '${machine.name}')">
+                  <i class="fas fa-trash"></i> Slet
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += `
+            </tbody>
+          </table>
+        `;
+
+        machineList.innerHTML = html;
+      }
+
+      // Åbn modal for oprettelse af maskine
+      function openCreateModal() {
+        modalTitle.textContent = "Opret Ny Maskine";
+        machineId.value = "";
+        machineName.value = "";
+        machineModal.style.display = "block";
+      }
+
+      // Åbn modal for redigering af maskine
+      function editMachine(id, name) {
+        modalTitle.textContent = "Rediger Maskine";
+        machineId.value = id;
+        machineName.value = name;
+        machineModal.style.display = "block";
+      }
+
+      // Luk modal
+      function closeModalHandler() {
+        machineModal.style.display = "none";
+      }
+
+      // Gem maskine (opret eller opdater)
+      async function saveMachine(e) {
+        e.preventDefault();
+
+        const machineData = {
+          name: machineName.value,
+        };
+
+        const isEditing = machineId.value !== "";
+
+        try {
+          let response;
+
+          if (isEditing) {
+            // Opdatering af eksisterende maskine
+            response = await fetch(`${API_URL}/machines/${machineId.value}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(machineData),
+            });
+          } else {
+            // Oprettelse af ny maskine
+            response = await fetch(`${API_URL}/machines`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(machineData),
+            });
+          }
+
+          const result = await response.json();
+
+          if (!result.success) {
+            throw new Error(result.message || "Der opstod en fejl");
+          }
+
+          closeModalHandler();
+          loadMachines();
+
+          const message = isEditing
+            ? "Maskinen er blevet opdateret"
+            : "Ny maskine er blevet oprettet";
+          alert(message);
+        } catch (error) {
+          console.error("Fejl ved gem maskine:", error);
+          alert(`Der opstod en fejl: ${error.message}`);
+        }
+      }
+
+      // Slet maskine
+      async function deleteMachine(id, name) {
+        const confirm = window.confirm(
+          `Er du sikker på, at du vil slette maskinen "${name}"?`
+        );
+
+        if (!confirm) return;
+
+        try {
+          const response = await fetch(`${API_URL}/machines/${id}`, {
+            method: "DELETE",
+          });
+
+          const result = await response.json();
+
+          if (!result.success) {
+            // Specifik håndtering af fejl ved sletning af maskine der er i brug
+            if (result.count && result.bookings) {
+              const bookingsList =
+                result.bookings.slice(0, 3).join(", ") +
+                (result.bookings.length > 3 ? "..." : "");
+
+              const confirmDelete = window.confirm(
+                `Denne maskine bruges i ${result.count} booking(er) (${bookingsList}).\n\n` +
+                  `Du skal først slette eller ændre disse bookinger, før du kan slette maskinen.\n\n` +
+                  `Vil du navigere til bookingsoversigten for at rette dette?`
+              );
+
+              if (confirmDelete) {
+                window.location.href = "/bookings";
+              }
+              return;
+            }
+
+            throw new Error(result.message || "Der opstod en fejl");
+          }
+
+          loadMachines();
+          alert("Maskinen er blevet slettet");
+        } catch (error) {
+          console.error("Fejl ved sletning af maskine:", error);
+          alert(`Der opstod en fejl ved sletning: ${error.message}`);
+        }
+      }
+
+      // Global funktion til redigering (nødvendig for onclick i HTML)
+      window.editMachine = editMachine;
+
+      // Global funktion til sletning (nødvendig for onclick i HTML)
+      window.deleteMachine = deleteMachine;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: p2-app
+    env: node
+    buildCommand: npm install
+    startCommand: node backend/server.js
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false
+    autoDeploy: true

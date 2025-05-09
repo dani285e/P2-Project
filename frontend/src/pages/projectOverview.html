@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projekt Oversigt</title>
+    <link rel="stylesheet" href="../styles/projectOverview.css" />
+  </head>
+  <body>
+    <div class="project-overview">
+      <div class="page-header">
+        <h1>Projekt Oversigt</h1>
+      </div>
+
+      <div class="section">
+        <h2>Opret Nyt Projekt</h2>
+        <form id="project-form">
+          <!-- Basic Project Information -->
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="projectID">Projekt ID*</label>
+                <input type="text" id="projectID" name="projectID" required />
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="name">Projekt Navn*</label>
+                <input type="text" id="name" name="name" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="customer">Kunde*</label>
+                <input type="text" id="customer" name="customer" required />
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="price">Pris (DKK)*</label>
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="startDate">Startdato*</label>
+                <input type="date" id="startDate" name="startDate" required />
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="deadline">Deadline*</label>
+                <input type="date" id="deadline" name="deadline" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Beskrivelse</label>
+            <textarea id="description" name="description" rows="4"></textarea>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <input type="checkbox" id="isClassProject" name="isClassProject" />
+            <label for="isClassProject" style="display: inline-block"
+              >Markér som klasseprojekt</label
+            >
+          </div>
+
+          <!-- Inspections Section (hidden by default) -->
+          <div id="inspection-section" class="hidden">
+            <h3>Inspektioner</h3>
+            <p>Vælg de relevante inspektioner:</p>
+
+            <div class="form-group checkbox-group">
+              <input
+                type="checkbox"
+                id="firstInspection"
+                name="firstInspection"
+                class="inspection-checkbox"
+              />
+              <label for="firstInspection" style="display: inline-block"
+                >1. Inspektion</label
+              >
+
+              <div class="inspection-date hidden">
+                <label for="firstInspectionDate">Dato for 1. inspektion</label>
+                <input
+                  type="date"
+                  id="firstInspectionDate"
+                  name="firstInspectionDate"
+                />
+              </div>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <input
+                type="checkbox"
+                id="wpsWpqr"
+                name="wpsWpqr"
+                class="inspection-checkbox"
+              />
+              <label for="wpsWpqr" style="display: inline-block"
+                >WPS/WPQR</label
+              >
+
+              <div class="inspection-date hidden">
+                <label for="wpsWpqrDate">Dato for WPS/WPQR</label>
+                <input type="date" id="wpsWpqrDate" name="wpsWpqrDate" />
+              </div>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <input
+                type="checkbox"
+                id="ndt"
+                name="ndt"
+                class="inspection-checkbox"
+              />
+              <label for="ndt" style="display: inline-block">NDT</label>
+
+              <div class="inspection-date hidden">
+                <label for="ndtDate">Dato for NDT</label>
+                <input type="date" id="ndtDate" name="ndtDate" />
+              </div>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <input
+                type="checkbox"
+                id="finalInspection"
+                name="finalInspection"
+                class="inspection-checkbox"
+              />
+              <label for="finalInspection" style="display: inline-block"
+                >Final Inspection</label
+              >
+
+              <div class="inspection-date hidden">
+                <label for="finalInspectionDate"
+                  >Dato for Final Inspection</label
+                >
+                <input
+                  type="date"
+                  id="finalInspectionDate"
+                  name="finalInspectionDate"
+                />
+              </div>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <input
+                type="checkbox"
+                id="report"
+                name="report"
+                class="inspection-checkbox"
+              />
+              <label for="report" style="display: inline-block">Report</label>
+
+              <div class="inspection-date hidden">
+                <label for="reportDate">Dato for Report</label>
+                <input type="date" id="reportDate" name="reportDate" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-buttons">
+            <button type="reset" class="btn-secondary">Nulstil</button>
+            <button type="submit">Opret Projekt</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="section">
+        <h2>Projekt Liste</h2>
+        <div id="project-list"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { createProject, initProjectForm } from "../js/projectOverview.js";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const projectForm = document.getElementById("project-form");
+
+        // ... existing script ...
+      });
+    </script>
+  </body>
+</html>

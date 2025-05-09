@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rediger Medarbejder</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+      .navbar {
+        background-color: #1976d2;
+        color: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .navbar h1 {
+        margin: 0;
+      }
+      .nav-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+        margin-right: 2rem;
+      }
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 0;
+        font-weight: 500;
+        transition: opacity 0.2s;
+        border-bottom: 2px solid transparent;
+      }
+      .nav-link:hover {
+        opacity: 0.9;
+        border-bottom: 2px solid white;
+      }
+      .nav-link.active {
+        border-bottom: 2px solid white;
+        font-weight: bold;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+      }
+      .card-header {
+        margin-bottom: 1.5rem;
+      }
+      .card h2 {
+        margin: 0;
+        color: #1976d2;
+      }
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+      .btn-container {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .btn-primary {
+        background-color: #1976d2;
+        color: white;
+      }
+      .btn-primary:hover {
+        background-color: #1565c0;
+      }
+      .btn-secondary {
+        background-color: #f5f5f5;
+        color: #333;
+      }
+      .btn-secondary:hover {
+        background-color: #e0e0e0;
+      }
+      .error-message {
+        color: #d32f2f;
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+      }
+      .skills-container {
+        margin-top: 1rem;
+      }
+      .skill-item {
+        display: inline-flex;
+        align-items: center;
+        background-color: #e3f2fd;
+        border-radius: 4px;
+        padding: 0.5rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .skill-remove {
+        margin-left: 0.5rem;
+        cursor: pointer;
+        font-weight: bold;
+        color: #999;
+      }
+      .skill-remove:hover {
+        color: #d32f2f;
+      }
+      .skill-input-container {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      .skill-input {
+        flex: 1;
+      }
+      .btn-add-skill {
+        padding: 0.75rem 1rem;
+        background-color: #4caf50;
+        color: white;
+      }
+      .btn-add-skill:hover {
+        background-color: #388e3c;
+      }
+      .loading {
+        text-align: center;
+        padding: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="nav-container">
+        <h1>Projektstyringssystem</h1>
+        <div class="nav-links">
+          <a href="/" class="nav-link">Projekter</a>
+          <a href="/employees" class="nav-link active">Medarbejdere</a>
+          <a href="/machines" class="nav-link">Maskiner</a>
+          <a href="/bookings" class="nav-link">Bookinger</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+          <h2>Rediger Medarbejder</h2>
+        </div>
+
+        <div id="loading" class="loading">Indlæser medarbejderdata...</div>
+
+        <form id="edit-employee-form" style="display: none">
+          <div class="form-group">
+            <label for="employeeNumber">Medarbejdernummer</label>
+            <input
+              type="text"
+              id="employeeNumber"
+              name="employeeNumber"
+              required
+              placeholder="F.eks. EMP001"
+            />
+            <div class="error-message" id="employeeNumber-error"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="name">Navn</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              placeholder="Indtast medarbejderens fulde navn"
+            />
+            <div class="error-message" id="name-error"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="skills">Færdigheder</label>
+            <div id="skills-list" class="skills-container"></div>
+
+            <div class="skill-input-container">
+              <input
+                type="text"
+                id="skill-input"
+                class="skill-input"
+                placeholder="Indtast en færdighed og klik på Tilføj"
+              />
+              <button type="button" id="add-skill" class="btn btn-add-skill">
+                Tilføj
+              </button>
+            </div>
+            <div class="error-message" id="skills-error"></div>
+          </div>
+
+          <div class="btn-container">
+            <a href="/employees" class="btn btn-secondary">Annuller</a>
+            <button type="submit" class="btn btn-primary">Gem ændringer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        getEmployeeById,
+        updateEmployee,
+      } from "../js/employeeService.js";
+
+      // Get employee ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const employeeId = urlParams.get("id");
+
+      if (!employeeId) {
+        alert("Ingen medarbejder-ID angivet.");
+        window.location.href = "/employees";
+      }
+
+      // State for skills
+      let skills = [];
+
+      // DOM references
+      const form = document.getElementById("edit-employee-form");
+      const loadingDiv = document.getElementById("loading");
+      const skillsList = document.getElementById("skills-list");
+      const skillInput = document.getElementById("skill-input");
+      const addSkillButton = document.getElementById("add-skill");
+
+      // Function to render skills list
+      function renderSkills() {
+        skillsList.innerHTML = "";
+
+        if (skills.length === 0) {
+          skillsList.innerHTML = "<p>Ingen færdigheder tilføjet endnu.</p>";
+          return;
+        }
+
+        skills.forEach((skill, index) => {
+          const skillItem = document.createElement("div");
+          skillItem.classList.add("skill-item");
+
+          skillItem.innerHTML = `
+          ${skill}
+          <span class="skill-remove" data-index="${index}">×</span>
+        `;
+
+          skillsList.appendChild(skillItem);
+        });
+
+        // Add event listeners to remove buttons
+        document.querySelectorAll(".skill-remove").forEach((button) => {
+          button.addEventListener("click", () => {
+            const index = parseInt(button.dataset.index, 10);
+            skills = skills.filter((_, i) => i !== index);
+            renderSkills();
+          });
+        });
+      }
+
+      // Add skill function
+      function addSkill() {
+        const skill = skillInput.value.trim();
+
+        if (skill && !skills.includes(skill)) {
+          skills.push(skill);
+          skillInput.value = "";
+          document.getElementById("skills-error").textContent = "";
+          renderSkills();
+        } else if (skills.includes(skill)) {
+          document.getElementById("skills-error").textContent =
+            "Denne færdighed er allerede tilføjet.";
+        }
+      }
+
+      // Function to load employee data
+      async function loadEmployeeData() {
+        try {
+          const employee = await getEmployeeById(employeeId);
+
+          // Fill form with employee data
+          document.getElementById("employeeNumber").value =
+            employee.employeeNumber || "";
+          document.getElementById("name").value = employee.name || "";
+
+          // Set skills
+          skills = employee.skills || [];
+          renderSkills();
+
+          // Show form and hide loading
+          loadingDiv.style.display = "none";
+          form.style.display = "block";
+        } catch (error) {
+          console.error("Error loading employee:", error);
+          alert("Der opstod en fejl ved indlæsning af medarbejderdata.");
+          window.location.href = "/employees";
+        }
+      }
+
+      // Load employee data when the page loads
+      document.addEventListener("DOMContentLoaded", loadEmployeeData);
+
+      // Event listener for add skill button
+      addSkillButton.addEventListener("click", addSkill);
+
+      // Event listener for skill input (add when Enter is pressed)
+      skillInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addSkill();
+        }
+      });
+
+      // Form submission
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Clear any previous error messages
+        document.querySelectorAll(".error-message").forEach((el) => {
+          el.textContent = "";
+        });
+
+        // Get form values
+        const employeeNumber = document
+          .getElementById("employeeNumber")
+          .value.trim();
+        const name = document.getElementById("name").value.trim();
+
+        // Basic validation
+        let isValid = true;
+
+        if (!employeeNumber) {
+          document.getElementById("employeeNumber-error").textContent =
+            "Medarbejdernummer er påkrævet.";
+          isValid = false;
+        }
+
+        if (!name) {
+          document.getElementById("name-error").textContent =
+            "Navn er påkrævet.";
+          isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // Create employee object
+        const employee = {
+          employeeNumber,
+          name,
+          skills,
+        };
+
+        try {
+          // Update employee
+          await updateEmployee(employeeId, employee);
+
+          // Redirect to employee overview
+          window.location.href = "/employees";
+        } catch (error) {
+          console.error("Error updating employee:", error);
+          alert(
+            "Der opstod en fejl ved opdatering af medarbejderen. Prøv igen senere."
+          );
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projekt Detaljer</title>
+    <style>
+      /* Grundlæggende styling */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+
+      /* Navbar styling */
+      .navbar {
+        background-color: #1976d2;
+        color: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .navbar h1 {
+        margin: 0;
+      }
+
+      .nav-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+        margin-right: 2rem;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 0;
+        font-weight: 500;
+        transition: opacity 0.2s;
+        border-bottom: 2px solid transparent;
+      }
+
+      .nav-link:hover {
+        opacity: 0.9;
+        border-bottom: 2px solid white;
+      }
+
+      .nav-link.active {
+        border-bottom: 2px solid white;
+        font-weight: bold;
+      }
+
+      .back-button {
+        text-decoration: none;
+        color: white;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+      }
+
+      .back-button:hover {
+        text-decoration: underline;
+      }
+
+      .back-button::before {
+        content: "←";
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+      }
+
+      /* Container og card styling */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .card-header {
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .card h2 {
+        margin: 0;
+        color: #1976d2;
+      }
+
+      /* Projekt detaljer styling */
+      .project-details {
+        margin: 0;
+        padding: 0;
+      }
+
+      .project-details dt {
+        font-weight: bold;
+        margin-top: 1rem;
+        color: #555;
+      }
+
+      .project-details dd {
+        margin-left: 0;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        border-left: 3px solid #e0e0e0;
+      }
+
+      .project-title {
+        color: #1976d2;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      /* Inspektion styling */
+      .inspection-list {
+        margin-top: 0.5rem;
+      }
+
+      .inspection-item {
+        margin-bottom: 0.5rem;
+        padding: 0.75rem;
+        background-color: #f0f7ff;
+        border-radius: 4px;
+        border-left: 3px solid #2196f3;
+      }
+
+      /* Knap styling */
+      .actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: flex-end;
+      }
+
+      button,
+      .btn-primary,
+      .btn-secondary,
+      .btn-edit,
+      .btn-delete {
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .btn-primary,
+      .btn-edit {
+        background-color: #1976d2;
+        color: white;
+      }
+
+      .btn-primary:hover,
+      .btn-edit:hover {
+        background-color: #1565c0;
+      }
+
+      .btn-secondary {
+        background-color: #9e9e9e;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background-color: #757575;
+      }
+
+      .btn-delete {
+        background-color: #f44336;
+        color: white;
+      }
+
+      .btn-delete:hover {
+        background-color: #d32f2f;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="nav-container">
+        <h1>Projektstyringssystem</h1>
+        <div class="nav-links">
+          <a href="/" class="nav-link active">Projekter</a>
+          <a href="/employees" class="nav-link">Medarbejdere</a>
+          <a href="/machines" class="nav-link">Maskiner</a>
+          <a href="/bookings" class="nav-link">Bookinger</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+          <h2>Projekt Detaljer</h2>
+          <a href="/" class="back-button">Tilbage til oversigt</a>
+        </div>
+
+        <div id="project-details">
+          <p>Indlæser projekt...</p>
+        </div>
+
+        <div class="actions">
+          <button id="btn-edit" class="btn-edit">Rediger Projekt</button>
+          <button id="btn-delete" class="btn-delete">Slet Projekt</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { getProjectById, deleteProject } from "../js/projectOverview.js";
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        // Get project ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get("id");
+
+        if (!projectId) {
+          alert("Intet projekt-ID angivet!");
+          window.location.href = "/";
+          return;
+        }
+
+        try {
+          // Fetch project details
+          const project = await getProjectById(projectId);
+          renderProjectDetails(project);
+
+          // Set up button event listeners
+          document.getElementById("btn-edit").addEventListener("click", () => {
+            window.location.href = `/editProject?id=${projectId}`;
+          });
+
+          document
+            .getElementById("btn-delete")
+            .addEventListener("click", async () => {
+              // Brug deleteProject funktionen i stedet for at implementere den igen
+              try {
+                await deleteProject(projectId);
+              } catch (error) {
+                alert(`Fejl ved sletning af projekt: ${error.message}`);
+              }
+            });
+        } catch (error) {
+          alert(`Fejl ved indlæsning af projekt: ${error.message}`);
+          window.location.href = "/";
+        }
+      });
+
+      function renderProjectDetails(project) {
+        const projectDetailsElement =
+          document.getElementById("project-details");
+
+        // Format dates
+        const startDate = new Date(project.startDate).toLocaleDateString(
+          "da-DK"
+        );
+        const deadline = new Date(project.deadline).toLocaleDateString("da-DK");
+
+        let inspectionsHtml = "";
+
+        if (project.isClassProject && project.inspections) {
+          inspectionsHtml = `
+          <dt>Inspektioner</dt>
+          <dd>
+            <div class="inspection-list">
+              ${renderInspection(
+                "1. Inspektion",
+                project.inspections.firstInspection
+              )}
+              ${renderInspection("WPS/WPQR", project.inspections.wpsWpqr)}
+              ${renderInspection("NDT", project.inspections.ndt)}
+              ${renderInspection(
+                "Final Inspection",
+                project.inspections.finalInspection
+              )}
+              ${renderInspection("Report", project.inspections.report)}
+            </div>
+          </dd>
+        `;
+        }
+
+        projectDetailsElement.innerHTML = `
+        <h2 class="project-title">${project.name}</h2>
+        
+        <dl class="project-details">
+          <dt>Projekt ID</dt>
+          <dd>${project.projectID}</dd>
+          
+          <dt>Kunde</dt>
+          <dd>${project.customer}</dd>
+          
+          <dt>Beskrivelse</dt>
+          <dd>${project.description || "Ingen beskrivelse"}</dd>
+          
+          <dt>Startdato</dt>
+          <dd>${startDate}</dd>
+          
+          <dt>Deadline</dt>
+          <dd>${deadline}</dd>
+          
+          <dt>Pris</dt>
+          <dd>${project.price.toLocaleString("da-DK")} kr.</dd>
+          
+          <dt>Klasseprojekt</dt>
+          <dd>${project.isClassProject ? "Ja" : "Nej"}</dd>
+          
+          ${inspectionsHtml}
+        </dl>
+      `;
+      }
+
+      function renderInspection(name, inspection) {
+        if (!inspection || !inspection.selected) {
+          return "";
+        }
+
+        const inspectionDate = inspection.date
+          ? new Date(inspection.date).toLocaleDateString("da-DK")
+          : "Ingen dato angivet";
+
+        return `
+        <div class="inspection-item">
+          <strong>${name}:</strong> ${inspectionDate}
+        </div>
+      `;
+      }
+    </script>
+  </body>
+</html>

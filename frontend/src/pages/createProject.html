@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Opret Projekt</title>
+    <style>
+      /* Grundlæggende styling */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+
+      /* Navbar styling */
+      .navbar {
+        background-color: #1976d2;
+        color: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .navbar h1 {
+        margin: 0;
+      }
+
+      .nav-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+        margin-right: 2rem;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 0;
+        font-weight: 500;
+        transition: opacity 0.2s;
+        border-bottom: 2px solid transparent;
+      }
+
+      .nav-link:hover {
+        opacity: 0.9;
+        border-bottom: 2px solid white;
+      }
+
+      .nav-link.active {
+        border-bottom: 2px solid white;
+        font-weight: bold;
+      }
+
+      .back-button {
+        text-decoration: none;
+        color: white;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+      }
+
+      .back-button:hover {
+        text-decoration: underline;
+      }
+
+      .back-button::before {
+        content: "←";
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+      }
+
+      /* Container og card styling */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .card-header {
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .card h2 {
+        margin: 0;
+        color: #1976d2;
+      }
+
+      /* Formular styling */
+      .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .form-col {
+        flex: 1;
+        min-width: 250px;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+
+      textarea {
+        resize: vertical;
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .checkbox-group input[type="checkbox"] {
+        width: auto;
+        margin-right: 0.5rem;
+      }
+
+      .checkbox-group label {
+        margin-bottom: 0;
+      }
+
+      /* Sektion styling */
+      .section {
+        margin-bottom: 2rem;
+      }
+
+      .section h3 {
+        color: #1976d2;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      /* Knap styling */
+      .form-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      button,
+      .btn-primary,
+      .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      button,
+      .btn-primary {
+        background-color: #1976d2;
+        color: white;
+      }
+
+      button:hover,
+      .btn-primary:hover {
+        background-color: #1565c0;
+      }
+
+      .btn-secondary {
+        background-color: #9e9e9e;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background-color: #757575;
+      }
+
+      /* Inspektioner styling */
+      .inspection-section {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        border-left: 4px solid #1976d2;
+      }
+
+      .inspection-item {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .inspection-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .inspection-date {
+        margin-top: 0.5rem;
+        margin-left: 1.5rem;
+        padding: 0.5rem;
+        background-color: #f0f7ff;
+        border-radius: 4px;
+      }
+
+      /* Hjælpeklasser */
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="nav-container">
+        <h1>Projektstyringssystem</h1>
+        <div class="nav-links">
+          <a href="/" class="nav-link active">Projekter</a>
+          <a href="/employees" class="nav-link">Medarbejdere</a>
+          <a href="/machines" class="nav-link">Maskiner</a>
+          <a href="/bookings" class="nav-link">Bookinger</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+          <h2>Opret Nyt Projekt</h2>
+          <a href="/" class="back-button">Tilbage til oversigt</a>
+        </div>
+
+        <form id="project-form" method="post" action="javascript:void(0);">
+          <!-- Basic Project Information -->
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="projectID">Projekt ID*</label>
+                <input type="text" id="projectID" name="projectID" required />
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="name">Projekt Navn*</label>
+                <input type="text" id="name" name="name" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="customer">Kunde*</label>
+                <input type="text" id="customer" name="customer" required />
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="price">Pris (DKK)*</label>
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="startDate">Startdato*</label>
+                <input type="date" id="startDate" name="startDate" required />
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="deadline">Deadline*</label>
+                <input type="date" id="deadline" name="deadline" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Beskrivelse</label>
+            <textarea id="description" name="description" rows="4"></textarea>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <input type="checkbox" id="isClassProject" name="isClassProject" />
+            <label for="isClassProject">Markér som klasseprojekt</label>
+          </div>
+
+          <!-- Inspections Section (hidden by default) -->
+          <div id="inspection-section" class="inspection-section hidden">
+            <h3>Inspektioner</h3>
+            <p>Vælg de relevante inspektioner:</p>
+
+            <div class="inspection-item">
+              <div class="checkbox-group">
+                <input
+                  type="checkbox"
+                  id="firstInspection"
+                  name="firstInspection"
+                  class="inspection-checkbox"
+                />
+                <label for="firstInspection">1. Inspektion</label>
+              </div>
+
+              <div
+                id="firstInspectionDateContainer"
+                class="inspection-date hidden"
+              >
+                <label for="firstInspectionDate">Dato for 1. inspektion</label>
+                <input
+                  type="date"
+                  id="firstInspectionDate"
+                  name="firstInspectionDate"
+                />
+              </div>
+            </div>
+
+            <div class="inspection-item">
+              <div class="checkbox-group">
+                <input
+                  type="checkbox"
+                  id="wpsWpqr"
+                  name="wpsWpqr"
+                  class="inspection-checkbox"
+                />
+                <label for="wpsWpqr">WPS/WPQR</label>
+              </div>
+
+              <div id="wpsWpqrDateContainer" class="inspection-date hidden">
+                <label for="wpsWpqrDate">Dato for WPS/WPQR</label>
+                <input type="date" id="wpsWpqrDate" name="wpsWpqrDate" />
+              </div>
+            </div>
+
+            <div class="inspection-item">
+              <div class="checkbox-group">
+                <input
+                  type="checkbox"
+                  id="ndt"
+                  name="ndt"
+                  class="inspection-checkbox"
+                />
+                <label for="ndt">NDT</label>
+              </div>
+
+              <div id="ndtDateContainer" class="inspection-date hidden">
+                <label for="ndtDate">Dato for NDT</label>
+                <input type="date" id="ndtDate" name="ndtDate" />
+              </div>
+            </div>
+
+            <div class="inspection-item">
+              <div class="checkbox-group">
+                <input
+                  type="checkbox"
+                  id="finalInspection"
+                  name="finalInspection"
+                  class="inspection-checkbox"
+                />
+                <label for="finalInspection">Final Inspection</label>
+              </div>
+
+              <div
+                id="finalInspectionDateContainer"
+                class="inspection-date hidden"
+              >
+                <label for="finalInspectionDate"
+                  >Dato for Final Inspection</label
+                >
+                <input
+                  type="date"
+                  id="finalInspectionDate"
+                  name="finalInspectionDate"
+                />
+              </div>
+            </div>
+
+            <div class="inspection-item">
+              <div class="checkbox-group">
+                <input
+                  type="checkbox"
+                  id="report"
+                  name="report"
+                  class="inspection-checkbox"
+                />
+                <label for="report">Report</label>
+              </div>
+
+              <div id="reportDateContainer" class="inspection-date hidden">
+                <label for="reportDate">Dato for Report</label>
+                <input type="date" id="reportDate" name="reportDate" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-buttons">
+            <a href="/" class="btn-secondary">Annuller</a>
+            <button type="submit" class="btn-primary">Gem Projekt</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module">
+      import { createProject } from "../js/projectOverview.js";
+
+      // Vis eller skjul dato-input baseret på checkboxens tilstand
+      function toggleDateInput(checkboxId, dateContainerId) {
+        const checkbox = document.getElementById(checkboxId);
+        const dateContainer = document.getElementById(dateContainerId);
+
+        if (checkbox.checked) {
+          dateContainer.classList.remove("hidden");
+        } else {
+          dateContainer.classList.add("hidden");
+        }
+      }
+
+      // Tilføj event listeners til alle inspektionscheckboxes
+      function setupInspectionCheckboxes() {
+        const inspectionCheckboxes = document.querySelectorAll(
+          ".inspection-checkbox"
+        );
+
+        inspectionCheckboxes.forEach((checkbox) => {
+          const id = checkbox.id;
+          const dateContainerId = `${id}DateContainer`;
+
+          checkbox.addEventListener("change", () => {
+            toggleDateInput(id, dateContainerId);
+          });
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const projectForm = document.getElementById("project-form");
+
+        // Set up class project checkbox change handler
+        const classProjectCheckbox = document.getElementById("isClassProject");
+        const inspectionSection = document.getElementById("inspection-section");
+
+        classProjectCheckbox.addEventListener("change", function () {
+          if (this.checked) {
+            inspectionSection.classList.remove("hidden");
+          } else {
+            inspectionSection.classList.add("hidden");
+          }
+        });
+
+        // Setup inspection checkboxes
+        setupInspectionCheckboxes();
+
+        // Override the form submit handler
+        projectForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          // Get form data
+          const formData = new FormData(projectForm);
+
+          // Create project object
+          const project = {
+            projectID: formData.get("projectID"),
+            name: formData.get("name"),
+            customer: formData.get("customer"),
+            description: formData.get("description"),
+            startDate: formData.get("startDate"),
+            deadline: formData.get("deadline"),
+            price: Number(formData.get("price")),
+            isClassProject: formData.get("isClassProject") === "on",
+          };
+
+          // Handle inspections if it's a class project
+          if (project.isClassProject) {
+            project.inspections = {
+              firstInspection: {
+                selected: formData.get("firstInspection") === "on",
+                date: formData.get("firstInspectionDate") || null,
+              },
+              wpsWpqr: {
+                selected: formData.get("wpsWpqr") === "on",
+                date: formData.get("wpsWpqrDate") || null,
+              },
+              ndt: {
+                selected: formData.get("ndt") === "on",
+                date: formData.get("ndtDate") || null,
+              },
+              finalInspection: {
+                selected: formData.get("finalInspection") === "on",
+                date: formData.get("finalInspectionDate") || null,
+              },
+              report: {
+                selected: formData.get("report") === "on",
+                date: formData.get("reportDate") || null,
+              },
+            };
+          }
+
+          try {
+            await createProject(project);
+            alert("Projekt oprettet succesfuldt!");
+            // Redirect to the project list page
+            window.location.href = "/";
+          } catch (error) {
+            alert(`Fejl ved oprettelse af projekt: ${error.message}`);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
