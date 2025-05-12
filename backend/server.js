@@ -45,72 +45,72 @@ app.use(
 // Specifikke sider - brug Express til traditionel servering
 app.get("/employees", (req, res) => {
   res.sendFile(
-    path.join(__dirname, "../frontend/src/pages/employeeOverview.html")
+    path.join(__dirname, "../frontend/src/pages/overview/employeeOverview.html")
   );
 });
 
 app.get("/machines", (req, res) => {
   res.sendFile(
-    path.join(__dirname, "../frontend/src/pages/machineOverview.html")
+    path.join(__dirname, "../frontend/src/pages/overview/machineOverview.html")
   );
 });
 
 app.get("/bookings", (req, res) => {
   res.sendFile(
-    path.join(__dirname, "../frontend/src/pages/bookingOverview.html")
+    path.join(__dirname, "../frontend/src/pages/overview/bookingOverview.html")
   );
 });
 
 app.get("/create-project", (req, res) => {
   res.sendFile(
-    path.join(__dirname, "../frontend/src/pages/createProject.html")
+    path.join(__dirname, "../frontend/src/pages/create/createProject.html")
   );
 });
 
 app.get("/create-employee", (req, res) => {
   res.sendFile(
-    path.join(__dirname, "../frontend/src/pages/createEmployee.html")
+    path.join(__dirname, "../frontend/src/pages/create/createEmployee.html")
   );
 });
 
 app.get("/viewEmployee", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/viewEmployee.html"));
+  res.sendFile(path.join(__dirname, "../frontend/src/pages/view/viewEmployee.html"));
 });
 
 app.get("/editEmployee", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/editEmployee.html"));
+  res.sendFile(path.join(__dirname, "../frontend/src/pages/edit/editEmployee.html"));
 });
 
 app.get("/viewProject", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/viewProject.html"));
+  res.sendFile(path.join(__dirname, "../frontend/src/pages/view/viewProject.html"));
 });
 
 app.get("/editProject", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/editProject.html"));
+  res.sendFile(path.join(__dirname, "../frontend/src/pages/edit/editProject.html"));
 });
 
 app.get("/create-machine", (req, res) => {
   res.sendFile(
-    path.join(__dirname, "../frontend/src/pages/createMachine.html")
+    path.join(__dirname, "../frontend/src/pages/create/createMachine.html")
   );
 });
 
 app.get("/viewMachine", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/viewMachine.html"));
+  res.sendFile(path.join(__dirname, "../frontend/src/pages/view/viewMachine.html"));
 });
 
 app.get("/editMachine", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/editMachine.html"));
+  res.sendFile(path.join(__dirname, "../frontend/src/pages/edit/editMachine.html"));
 });
 
-// Serve projectOverview.html for the root route
+// Serve projectOverview.html for the '/project' route
+app.get("/project", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/src/pages/overview/projectOverview.html"));
+});
+
+// Serve projectOverview.html for the root route, but keep the URL as '/'
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/projectOverview.html"));
-});
-
-// Standardrute for alt andet - sender til forsiden
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(__dirname, "../frontend/src/pages/overview/projectOverview.html"));
 });
 
 app.listen(PORT, async () => {

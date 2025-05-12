@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medarbejder Detaljer</title>
+    <!-- Include Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Projektstyringssystem</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Projekter</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/employees">Medarbejdere</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/machines">Maskiner</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/bookings">Bookinger</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container mt-4">
+      <div class="text-center mb-4">
+        <h1 class="text-primary">Medarbejder Detaljer</h1>
+      </div>
+      <div class="card mb-4">
+        <div class="card-body" id="employee-details">
+          <p class="text-muted">Indlæser medarbejder...</p>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <a href="/employees" class="btn btn-secondary">Tilbage</a>
+        <button id="btn-edit" class="btn btn-warning">Rediger Medarbejder</button>
+        <button id="btn-delete" class="btn btn-danger">Slet Medarbejder</button>
+      </div>
+    </div>
+
+    <!-- Include Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+    ></script>
+    <script type="module" src="../../js/view/viewEmployee.js"></script>
+  </body>
+</html>

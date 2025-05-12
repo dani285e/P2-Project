@@ -1,7 +1,7 @@
 // Booking Service
 // Dette script håndterer bookingsfunktionalitet og API-kald til backend
 
-import { API_URL } from "./config.js";
+import { API_URL } from "../utils/config.js";
 
 // DOM-elementer
 const bookingTimeline = document.getElementById("bookingTimeline");

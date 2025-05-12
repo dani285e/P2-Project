@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rediger Medarbejder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Projektstyringssystem</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link" href="/">Projekter</a></li>
+            <li class="nav-item"><a class="nav-link" href="/employees">Medarbejdere</a></li>
+            <li class="nav-item"><a class="nav-link" href="/machines">Maskiner</a></li>
+            <li class="nav-item"><a class="nav-link" href="/bookings">Bookinger</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <h2 class="text-primary mb-4 text-center">Rediger Medarbejder</h2>
+      <div class="card shadow-sm">
+        <div id="loading" class="text-center py-4">Indlæser medarbejderdata...</div>
+
+        <form id="edit-employee-form" class="p-3 d-none" autocomplete="on">
+          <div class="mb-3">
+            <label for="employeeNumber" class="form-label">Medarbejdernummer</label>
+            <input type="text" id="employeeNumber" name="employeeNumber" class="form-control" required placeholder="F.eks. EMP001" autocomplete="username" />
+            <div class="text-danger small" id="employeeNumber-error"></div>
+          </div>
+
+          <div class="mb-3">
+            <label for="name" class="form-label">Navn</label>
+            <input type="text" id="name" name="name" class="form-control" required placeholder="Indtast medarbejderens fulde navn" autocomplete="name" />
+            <div class="text-danger small" id="name-error"></div>
+          </div>
+
+          <div class="mb-3">
+            <label for="skill-input" class="form-label">Færdigheder</label>
+            <div id="skills-list" class="d-flex flex-wrap gap-2"></div>
+
+            <div class="input-group mt-2">
+              <input type="text" id="skill-input" class="form-control" placeholder="Indtast en færdighed og klik på Tilføj" autocomplete="off" />
+              <button type="button" id="add-skill" class="btn btn-success">Tilføj</button>
+            </div>
+            <div class="text-danger small" id="skills-error"></div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/employees" class="btn btn-secondary">Annuller</a>
+            <button type="submit" class="btn btn-primary">Gem ændringer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module" src="../../js/edit/editEmployee.js"></script>
+  </body>
+</html>

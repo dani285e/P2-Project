@@ -1,7 +1,7 @@
 // Employee Service
 // This file handles API calls for employee management
 
-import { API_URL } from "./config.js";
+import { API_URL } from "../utils/config.js";
 
 /**
  * Fetches all employees from the API
