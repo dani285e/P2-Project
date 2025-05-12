@@ -12,6 +12,7 @@
     "vite": "^6.3.1"
   },
   "dependencies": {
+    "frontend": "file:",
     "p2": "file:.."
   }
 }

@@ -5,18 +5,8 @@ import { API_URL } from "./config.js";
 
 // DOM-elementer
 const bookingTimeline = document.getElementById("bookingTimeline");
-const bookingModal = document.getElementById("bookingModal");
-const bookingForm = document.getElementById("bookingForm");
-const closeModal = document.getElementById("closeModal");
-const cancelBtn = document.getElementById("cancelBtn");
-const createBookingBtn = document.getElementById("createBookingBtn");
-const modalTitle = document.getElementById("modalTitle");
-const prevWeekBtn = document.getElementById("prevWeek");
-const nextWeekBtn = document.getElementById("nextWeek");
-const todayBtn = document.getElementById("todayButton");
 const currentDateRangeSpan = document.getElementById("currentDateRange");
 const bookingAlert = document.getElementById("bookingAlert");
-const deleteBtn = document.getElementById("deleteBtn");
 
 // Tilstand
 let machines = [];
@@ -343,30 +333,50 @@ const deleteBooking = async (id) => {
 
 // Luk modal
 const closeBookingModal = () => {
-  bookingModal.style.display = "none";
+  const bookingModalElement = document.getElementById("bookingModal");
+  const bookingForm = document.getElementById("bookingForm");
+  const bookingAlert = document.getElementById("bookingAlert");
+  const createBookingBtn = document.getElementById("createBookingBtn");
+
+  const bookingModal = bootstrap.Modal.getInstance(bookingModalElement);
+  if (bookingModal) {
+    bookingModal.hide();
+  }
+
   bookingForm.reset();
   bookingAlert.style.display = "none";
   selectedEmployees = [];
   document.getElementById("selectedEmployees").innerHTML = "";
   isEditing = false;
   editingBookingId = null;
+
+  // Move focus to the "Create Booking" button
+  if (createBookingBtn) {
+    createBookingBtn.focus();
+  }
 };
 
 // Åbn modal for oprettelse af booking
 const openCreateBookingModal = () => {
+  const modalTitle = document.getElementById("modalTitle");
+  const deleteBtn = document.getElementById("deleteBtn");
+  const bookingModalElement = document.getElementById("bookingModal");
+  const bookingModal = new bootstrap.Modal(bookingModalElement, {
+    backdrop: 'static', // Prevent accidental closing by clicking outside
+    keyboard: false,   // Disable closing with the Escape key
+  });
+
   modalTitle.textContent = "Opret Ny Booking";
   isEditing = false;
   editingBookingId = null;
-  deleteBtn.style.display = "none";
+  deleteBtn.classList.add("d-none"); // Hide delete button by adding d-none class
 
-  // Generer et bookingID
   document.getElementById("bookingID").value = `B${Math.floor(
     Math.random() * 10000
   )
     .toString()
     .padStart(4, "0")}`;
 
-  // Sæt starttid og sluttid til nu + 1 time
   const now = new Date();
   const oneHourLater = new Date(now);
   oneHourLater.setHours(oneHourLater.getHours() + 1);
@@ -375,21 +385,27 @@ const openCreateBookingModal = () => {
   document.getElementById("endTime").value =
     formatDateTimeForInput(oneHourLater);
 
-  bookingModal.style.display = "block";
+  bookingModal.show();
 };
 
 // Åbn modal for redigering af booking
 const openEditBookingModal = (booking) => {
+  const modalTitle = document.getElementById("modalTitle");
+  const deleteBtn = document.getElementById("deleteBtn");
+  const bookingModalElement = document.getElementById("bookingModal");
+  const bookingModal = new bootstrap.Modal(bookingModalElement, {
+    backdrop: 'static', // Prevent accidental closing by clicking outside
+    keyboard: false,   // Disable closing with the Escape key
+  });
+
   modalTitle.textContent = "Rediger Booking";
   isEditing = true;
   editingBookingId = booking.bookingID;
-  deleteBtn.style.display = "inline-block";
+  deleteBtn.classList.remove("d-none"); // Ensure the delete button is visible
 
-  // Udfyld formular med bookingdata
   document.getElementById("bookingID").value = booking.bookingID;
   document.getElementById("machine").value = booking.machineID._id;
 
-  // Håndter projekt - tjek om det er en vedligeholdelsesreservation
   if (booking.maintenanceType === "general") {
     document.getElementById("project").value = "maintenance";
   } else {
@@ -398,7 +414,6 @@ const openEditBookingModal = (booking) => {
 
   document.getElementById("notes").value = booking.notes || "";
 
-  // Indstil start- og sluttidspunkt
   document.getElementById("startTime").value = formatDateTimeForInput(
     new Date(booking.startTime)
   );
@@ -406,7 +421,6 @@ const openEditBookingModal = (booking) => {
     new Date(booking.endTime)
   );
 
-  // Udfyld medarbejdere
   selectedEmployees = [];
   if (booking.employeeIDs && booking.employeeIDs.length > 0) {
     booking.employeeIDs.forEach((employee) => {
@@ -418,7 +432,7 @@ const openEditBookingModal = (booking) => {
     renderSelectedEmployees();
   }
 
-  bookingModal.style.display = "block";
+  bookingModal.show();
 };
 
 // Formater dato til input
@@ -708,24 +722,14 @@ const renderTimeline = () => {
           }
 
           cellContent += `
-            <div class="${bookingClass}" data-booking-id="${
-            booking.bookingID
-          }" data-machine-id="${machine._id}" style="${style}">
+            <div class="${bookingClass}" data-booking-id="${booking.bookingID}" data-machine-id="${machine._id}" style="${style}">
               <div><strong>${projectName}</strong></div>
-              <div>${formatTimeOnly(displayStart)} - ${formatTimeOnly(
-            displayEnd
-          )}</div>
+              <div>${formatTimeOnly(displayStart)} - ${formatTimeOnly(displayEnd)}</div>
               <div class="booking-tooltip">
                 <p><strong>Projekt:</strong> ${projectName}</p>
-                <p><strong>Start:</strong> ${formatDateTime(
-                  booking.startTime
-                )}</p>
+                <p><strong>Start:</strong> ${formatDateTime(booking.startTime)}</p>
                 <p><strong>Slut:</strong> ${formatDateTime(booking.endTime)}</p>
-                ${
-                  booking.notes
-                    ? `<p><strong>Noter:</strong> ${booking.notes}</p>`
-                    : ""
-                }
+                ${booking.notes ? `<p><strong>Noter:</strong> ${booking.notes}</p>` : ""}
                 <p><strong>Medarbejdere:</strong> ${
                   booking.employeeIDs && booking.employeeIDs.length > 0
                     ? booking.employeeIDs.map((e) => e.name).join(", ")
@@ -751,7 +755,7 @@ const renderTimeline = () => {
   document.querySelectorAll(".booking").forEach((bookingEl) => {
     bookingEl.addEventListener("click", () => {
       const bookingId = bookingEl.dataset.bookingId;
-      const booking = bookingsToRender.find((b) => b.bookingID === bookingId);
+      const booking = bookings.find((b) => b.bookingID === bookingId);
       if (booking) {
         openEditBookingModal(booking);
       }
@@ -763,92 +767,75 @@ const renderTimeline = () => {
 const handleFormSubmit = async (e) => {
   e.preventDefault();
 
-  // Validering
+  // Retrieve form values
   const bookingID = document.getElementById("bookingID").value.trim();
   const machineID = document.getElementById("machine").value;
   const projectID = document.getElementById("project").value;
   const startTime = document.getElementById("startTime").value;
   const endTime = document.getElementById("endTime").value;
-  const notes = document.getElementById("notes").value.trim();
 
-  // Tjek om alle påkrævede felter er udfyldt
+  // Validate required fields
   if (!bookingID || !machineID || !projectID || !startTime || !endTime) {
-    showAlert("Alle påkrævede felter skal udfyldes");
+    showAlert("Alle felter markeret med * skal udfyldes.", "danger");
     return;
   }
 
-  // Validér tidspunkter
+  // Validate time range
   const startDate = new Date(startTime);
   const endDate = new Date(endTime);
-
   if (startDate >= endDate) {
-    showAlert("Sluttidspunktet skal være efter starttidspunktet");
+    showAlert("Starttidspunktet skal være før sluttidspunktet.", "danger");
     return;
   }
 
-  // Tjek for booking konflikter
+  // Check for booking conflicts
   const conflicts = checkBookingConflicts(
     machineID,
     startTime,
     endTime,
     isEditing ? editingBookingId : null
   );
+
   if (conflicts) {
-    showAlert(
-      `Denne maskine er allerede booket i den valgte tidsperiode (${conflicts
-        .map((b) => b.projectID.name)
-        .join(", ")})`
+    const conflictMessages = conflicts.map(
+      (conflict) =>
+        `${formatTimeOnly(conflict.startTime)} - ${formatTimeOnly(conflict.endTime)}`
     );
+    showAlert(`Tidsrummet (${conflictMessages.join(", ")}) er allerede optaget.`, "danger");
     return;
   }
 
-  // Automatisk bestem status baseret på datoer
-  const now = new Date();
-  let status = "Planlagt";
-  if (startDate <= now && endDate > now) {
-    status = "I gang";
-  } else if (endDate <= now) {
-    status = "Afsluttet";
-  }
-
-  // Opret booking objekt
+  // Proceed with booking creation or update
   const bookingData = {
-    bookingID: bookingID,
-    machineID: machineID,
-    startTime: startTime,
-    endTime: endTime,
-    status: status,
-    notes: notes,
+    bookingID,
+    machineID,
+    projectID,
+    startTime,
+    endTime,
     employeeIDs: selectedEmployees.map((e) => e.id),
+    notes: document.getElementById("notes").value.trim(),
   };
-
-  // Håndter vedligeholdelse
-  if (projectID === "maintenance") {
-    // Sæt et felt til at markere at dette er vedligeholdelse
-    bookingData.maintenanceType = "general";
-    bookingData.projectID = null; // Ingen projekt for vedligeholdelse
-  } else {
-    bookingData.projectID = projectID;
-  }
 
   try {
     if (isEditing) {
       await updateBooking(editingBookingId, bookingData);
+      showAlert("Booking opdateret.", "success");
     } else {
       await createBooking(bookingData);
+      showAlert("Booking oprettet.", "success");
     }
 
-    // Opdater bookings og genrender timeline
-    await refreshData();
     closeBookingModal();
+    await refreshData();
   } catch (error) {
-    showAlert(error.message);
+    showAlert("Der opstod en fejl under behandling af bookingen.", "danger");
+    console.error(error);
   }
 };
 
-// Vis fejlbesked
-const showAlert = (message) => {
+const showAlert = (message, type = "danger") => {
   bookingAlert.textContent = message;
+  bookingAlert.className = `alert alert-${type}`;
   bookingAlert.style.display = "block";
 };
 
@@ -914,25 +901,67 @@ const initApp = async () => {
   populateProjectSelect();
   populateEmployeeSelect();
 
-  // Tilføj event listeners til knapper
-  createBookingBtn.addEventListener("click", openCreateBookingModal);
-  closeModal.addEventListener("click", closeBookingModal);
-  cancelBtn.addEventListener("click", closeBookingModal);
-  bookingForm.addEventListener("submit", handleFormSubmit);
-  deleteBtn.addEventListener("click", handleDeleteBooking);
+  // DOM-elementer
+  const createBookingBtn = document.getElementById("createBookingBtn");
+  const closeModal = document.getElementById("closeModal");
+  const cancelBtn = document.getElementById("cancelBtn");
+  const bookingForm = document.getElementById("bookingForm");
+  const deleteBtn = document.getElementById("deleteBtn");
+  const prevWeekBtn = document.getElementById("prevWeek");
+  const nextWeekBtn = document.getElementById("nextWeek");
+  const todayBtn = document.getElementById("todayButton");
+  const bookingModal = document.getElementById("bookingModal");
 
-  // Navigation
-  prevWeekBtn.addEventListener("click", goToPrevWeek);
-  nextWeekBtn.addEventListener("click", goToNextWeek);
-  todayBtn.addEventListener("click", goToToday);
+  // Check for missing elements
+  const elements = {
+    createBookingBtn,
+    closeModal,
+    cancelBtn,
+    bookingForm,
+    deleteBtn,
+    prevWeekBtn,
+    nextWeekBtn,
+    todayBtn,
+    bookingModal,
+  };
 
-  // Luk modal ved klik udenfor
-  window.addEventListener("click", (event) => {
-    if (event.target === bookingModal) {
-      closeBookingModal();
+  for (const [key, element] of Object.entries(elements)) {
+    if (!element) {
+      console.error(`Missing DOM element: ${key}`);
     }
-  });
+  }
+
+  // Add event listeners if elements exist
+  if (createBookingBtn) {
+    console.log("Attaching event listener to 'Opret Ny Booking' button.");
+    createBookingBtn.addEventListener("click", () => {
+      console.log("'Opret Ny Booking' button clicked.");
+      openCreateBookingModal();
+    });
+  } else {
+    console.error("'Opret Ny Booking' button not found in the DOM.");
+  }
+  if (closeModal) closeModal.addEventListener("click", closeBookingModal);
+  if (cancelBtn) cancelBtn.addEventListener("click", closeBookingModal);
+  if (bookingForm) {
+    bookingForm.addEventListener("submit", handleFormSubmit);
+  }
+  if (deleteBtn) deleteBtn.addEventListener("click", handleDeleteBooking);
+
+  if (prevWeekBtn) prevWeekBtn.addEventListener("click", goToPrevWeek);
+  if (nextWeekBtn) nextWeekBtn.addEventListener("click", goToNextWeek);
+  if (todayBtn) todayBtn.addEventListener("click", goToToday);
+
+  if (bookingModal) {
+    window.addEventListener("click", (event) => {
+      if (event.target === bookingModal) {
+        closeBookingModal();
+      }
+    });
+  }
 };
 
 // Start applikationen når DOM er indlæst
-document.addEventListener("DOMContentLoaded", initApp);
+document.addEventListener("DOMContentLoaded", () => {
+  initApp();
+});

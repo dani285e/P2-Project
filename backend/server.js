@@ -103,6 +103,11 @@ app.get("/editMachine", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/src/pages/editMachine.html"));
 });
 
+// Serve projectOverview.html for the root route
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/src/pages/projectOverview.html"));
+});
+
 // Standardrute for alt andet - sender til forsiden
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));

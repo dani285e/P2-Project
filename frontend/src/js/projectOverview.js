@@ -93,7 +93,7 @@ export async function deleteProject(id) {
     const projectList = document.getElementById("project-list");
     if (projectList) {
       const projects = await getProjects();
-      renderProjects(projects, projectList);
+      renderProjects(projects);
     } else {
       // If we're not on the main page, redirect to it
       window.location.href = "/";
@@ -109,92 +109,60 @@ export async function deleteProject(id) {
 /**
  * Renders all projects to the project list element
  * @param {Array} projects - Array of project objects to render
- * @param {HTMLElement} targetElement - Element to render projects to
  */
-export function renderProjects(projects, targetElement) {
-  if (!targetElement) return;
-
-  targetElement.innerHTML = "";
+export function renderProjects(projects) {
+  // Only update the tbody with id 'project-list-body'
+  const tbody = document.getElementById("project-list-body");
+  if (!tbody) return;
 
   if (!projects.length) {
-    targetElement.innerHTML = "<p>Ingen projekter fundet.</p>";
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center">Ingen projekter fundet.</td></tr>`;
     return;
   }
 
-  const table = document.createElement("table");
-  table.classList.add("project-table");
-
-  // Create table header
-  const thead = document.createElement("thead");
-  thead.innerHTML = `
-    <tr>
-      <th>Projekt ID</th>
-      <th>Navn</th>
-      <th>Kunde</th>
-      <th>Startdato</th>
-      <th>Deadline</th>
-      <th>Pris</th>
-      <th>Klasseprojekt</th>
-      <th>Handlinger</th>
-    </tr>
-  `;
-  table.appendChild(thead);
-
-  // Create table body
-  const tbody = document.createElement("tbody");
-
+  let html = "";
   projects.forEach((project) => {
-    const row = document.createElement("tr");
-
-    // Format dates
-    const startDate = new Date(project.startDate).toLocaleDateString("da-DK");
-    const deadline = new Date(project.deadline).toLocaleDateString("da-DK");
-
-    row.innerHTML = `
-      <td>${project.projectID}</td>
-      <td>${project.name}</td>
-      <td>${project.customer}</td>
-      <td>${startDate}</td>
-      <td>${deadline}</td>
-      <td>${project.price.toLocaleString("da-DK")} kr.</td>
-      <td>${project.isClassProject ? "Ja" : "Nej"}</td>
-      <td>
-        <button class="btn-view" data-id="${project._id}">Vis</button>
-        <button class="btn-edit" data-id="${project._id}">Rediger</button>
-        <button class="btn-delete" data-id="${project._id}">Slet</button>
-      </td>
+    const startDate = project.startDate ? new Date(project.startDate).toLocaleDateString("da-DK") : "-";
+    const deadline = project.deadline ? new Date(project.deadline).toLocaleDateString("da-DK") : "-";
+    html += `
+      <tr>
+        <td>${project.projectID || "-"}</td>
+        <td>${project.name || "-"}</td>
+        <td>${project.customer || "-"}</td>
+        <td>${startDate}</td>
+        <td>${deadline}</td>
+        <td>${project.price != null ? project.price.toLocaleString("da-DK") + ' kr.' : "-"}</td>
+        <td>${project.isClassProject ? "Ja" : "Nej"}</td>
+        <td class="d-flex gap-1 align-items-center">
+          <button class="btn btn-primary btn-sm btn-view me-1" data-id="${project._id}"><i class="bi bi-eye"></i> Vis</button>
+          <button class="btn btn-warning btn-sm btn-edit me-1" data-id="${project._id}"><i class="bi bi-pencil"></i> Rediger</button>
+          <button class="btn btn-danger btn-sm btn-delete" data-id="${project._id}"><i class="bi bi-trash"></i> Slet</button>
+        </td>
+      </tr>
     `;
-
-    tbody.appendChild(row);
   });
-
-  table.appendChild(tbody);
-  targetElement.appendChild(table);
+  tbody.innerHTML = html;
 
   // Add event listeners to buttons
-  targetElement.querySelectorAll(".btn-view").forEach((btn) => {
+  tbody.querySelectorAll(".btn-view").forEach((btn) => {
     btn.addEventListener("click", () => {
       if (typeof window.viewProject === "function") {
         window.viewProject(btn.dataset.id);
       } else {
         console.log(`View project with ID: ${btn.dataset.id}`);
-        // TODO: Implement project view functionality
       }
     });
   });
-
-  targetElement.querySelectorAll(".btn-edit").forEach((btn) => {
+  tbody.querySelectorAll(".btn-edit").forEach((btn) => {
     btn.addEventListener("click", () => {
       if (typeof window.editProject === "function") {
         window.editProject(btn.dataset.id);
       } else {
         console.log(`Edit project with ID: ${btn.dataset.id}`);
-        // TODO: Implement project edit functionality
       }
     });
   });
-
-  targetElement.querySelectorAll(".btn-delete").forEach((btn) => {
+  tbody.querySelectorAll(".btn-delete").forEach((btn) => {
     btn.addEventListener("click", () => deleteProject(btn.dataset.id));
   });
 }
@@ -302,7 +270,95 @@ export function initProjectOverview() {
   const projectList = document.getElementById("project-list");
   if (projectList) {
     getProjects().then((projects) => {
-      renderProjects(projects, projectList);
+      renderProjects(projects);
     });
   }
+}
+
+// Auto-initialize project overview if on the correct page
+if (document.getElementById("project-list")) {
+  initProjectOverview();
+}
+
+// --- v2 Project Table Event Listeners and Handlers ---
+
+export function renderProjectsV2(projects) {
+  const tbody = document.getElementById("project-list-body-v2");
+  if (!tbody) return;
+  if (!projects || projects.length === 0) {
+    tbody.innerHTML = `<tr><td colspan='8' class='text-muted text-center'>Ingen projekter fundet.</td></tr>`;
+    return;
+  }
+  let html = "";
+  projects.forEach((project) => {
+    const startDate = project.startDate ? new Date(project.startDate).toLocaleDateString("da-DK") : "-";
+    const deadline = project.deadline ? new Date(project.deadline).toLocaleDateString("da-DK") : "-";
+    html += `
+      <tr>
+        <td>${project.projectID || "-"}</td>
+        <td>${project.name || "-"}</td>
+        <td>${project.customer || "-"}</td>
+        <td>${startDate}</td>
+        <td>${deadline}</td>
+        <td>${project.price != null ? project.price.toLocaleString("da-DK") + ' kr.' : "-"}</td>
+        <td>${project.isClassProject ? "Ja" : "Nej"}</td>
+        <td class="d-flex gap-1 align-items-center">
+          <button type="button" class="btn btn-info btn-sm btn-view-v2" data-id="${project._id}"><i class="bi bi-eye"></i> Vis</button>
+          <button type="button" class="btn btn-warning btn-sm btn-edit-v2" data-id="${project._id}"><i class="bi bi-pencil"></i> Rediger</button>
+          <button type="button" class="btn btn-danger btn-sm btn-delete-v2" data-id="${project._id}" data-name="${project.name}"><i class="bi bi-trash"></i> Slet</button>
+        </td>
+      </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+  // DEBUG: Adding event listeners for v2 buttons
+  console.debug('[renderProjectsV2] Adding event listeners for .btn-view-v2, .btn-edit-v2, .btn-delete-v2');
+  tbody.querySelectorAll(".btn-view-v2").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      console.debug('[btn-view-v2] Clicked', btn.dataset.id, typeof window.viewProject);
+      if (typeof window.viewProject === "function") {
+        window.viewProject(btn.dataset.id);
+      } else {
+        console.warn("window.viewProject is not a function", btn.dataset.id);
+      }
+    });
+  });
+  tbody.querySelectorAll(".btn-edit-v2").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      console.debug('[btn-edit-v2] Clicked', btn.dataset.id, typeof window.editProject);
+      if (typeof window.editProject === "function") {
+        window.editProject(btn.dataset.id);
+      } else {
+        console.warn("window.editProject is not a function", btn.dataset.id);
+      }
+    });
+  });
+  tbody.querySelectorAll(".btn-delete-v2").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      console.debug('[btn-delete-v2] Clicked', btn.dataset.id, btn.dataset.name, typeof window.handleDeleteProject);
+      if (typeof window.handleDeleteProject === "function") {
+        window.handleDeleteProject(btn.dataset.id, btn.dataset.name);
+      } else {
+        console.warn("window.handleDeleteProject is not a function", btn.dataset.id, btn.dataset.name);
+      }
+    });
+  });
+}
+
+if (typeof window.viewProject !== "function") {
+  window.viewProject = function(id) {
+    window.location.href = `/src/pages/viewProject.html?id=${id}`;
+  };
+}
+if (typeof window.editProject !== "function") {
+  window.editProject = function(id) {
+    window.location.href = `/src/pages/editProject.html?id=${id}`;
+  };
+}
+if (typeof window.handleDeleteProject !== "function") {
+  window.handleDeleteProject = function(id, name) {
+    if (confirm(`Er du sikker på, at du vil slette projektet "${name}"?`)) {
+      alert(`Projekt ${name} (ID: ${id}) ville blive slettet her.`);
+    }
+  };
 }

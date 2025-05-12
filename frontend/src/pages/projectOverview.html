@@ -4,200 +4,217 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Projekt Oversigt</title>
-    <link rel="stylesheet" href="../styles/projectOverview.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </head>
-  <body>
-    <div class="project-overview">
-      <div class="page-header">
-        <h1>Projekt Oversigt</h1>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Projektstyringssystem</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Projekter</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/employees">Medarbejdere</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/machines">Maskiner</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/bookings">Bookinger</a>
+            </li>
+          </ul>
+          <a href="/create-project" class="btn btn-success ms-lg-2">
+            <i class="bi bi-clipboard-plus"></i> Opret Nyt Projekt
+          </a>
+        </div>
       </div>
+    </nav>
 
-      <div class="section">
-        <h2>Opret Nyt Projekt</h2>
-        <form id="project-form">
-          <!-- Basic Project Information -->
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-group">
-                <label for="projectID">Projekt ID*</label>
-                <input type="text" id="projectID" name="projectID" required />
+    <div class="container mt-4">
+      <h2 class="text-primary mb-3">Projekt Oversigt</h2>
+      <div class="card">
+        <div class="card-body">
+          <div class="row g-2 align-items-center my-3 px-3">
+            <div class="col-md-7 col-12">
+              <div class="input-group input-group-sm">
+                <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Søg efter projekt ID, navn eller kunde...">
+                <button id="search-button" class="btn btn-primary btn-sm">Søg</button>
               </div>
             </div>
-            <div class="form-col">
-              <div class="form-group">
-                <label for="name">Projekt Navn*</label>
-                <input type="text" id="name" name="name" required />
-              </div>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-group">
-                <label for="customer">Kunde*</label>
-                <input type="text" id="customer" name="customer" required />
-              </div>
-            </div>
-            <div class="form-col">
-              <div class="form-group">
-                <label for="price">Pris (DKK)*</label>
-                <input
-                  type="number"
-                  id="price"
-                  name="price"
-                  min="0"
-                  step="0.01"
-                  required
-                />
+            <div class="col-md-5 col-12">
+              <div class="input-group input-group-sm">
+                <select id="sort-field" class="form-select form-select-sm">
+                  <option value="projectID">Sortér efter Projekt ID</option>
+                  <option value="name">Sortér efter Navn</option>
+                  <option value="customer">Sortér efter Kunde</option>
+                  <option value="startDate">Sortér efter Startdato</option>
+                  <option value="deadline">Sortér efter Deadline</option>
+                  <option value="isClassProject">Sortér efter Klasseprojekt</option>
+                </select>
+                <button id="sort-direction" class="btn btn-light btn-sm d-flex align-items-center" title="Skift sorteringsretning">
+                  <span id="sort-icon" class="bi bi-sort-alpha-up"></span>
+                </button>
               </div>
             </div>
           </div>
-
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-group">
-                <label for="startDate">Startdato*</label>
-                <input type="date" id="startDate" name="startDate" required />
-              </div>
-            </div>
-            <div class="form-col">
-              <div class="form-group">
-                <label for="deadline">Deadline*</label>
-                <input type="date" id="deadline" name="deadline" required />
-              </div>
-            </div>
+          <div class="table-responsive">
+            <table class="table table-hover w-100" id="project-table-v2">
+              <thead>
+                <tr>
+                  <th>Projekt ID</th>
+                  <th>Navn</th>
+                  <th>Kunde</th>
+                  <th>Startdato</th>
+                  <th>Deadline</th>
+                  <th>Pris</th>
+                  <th>Klasseprojekt</th>
+                  <th>Handlinger</th>
+                </tr>
+              </thead>
+              <tbody id="project-list-body-v2">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
           </div>
-
-          <div class="form-group">
-            <label for="description">Beskrivelse</label>
-            <textarea id="description" name="description" rows="4"></textarea>
-          </div>
-
-          <div class="form-group checkbox-group">
-            <input type="checkbox" id="isClassProject" name="isClassProject" />
-            <label for="isClassProject" style="display: inline-block"
-              >Markér som klasseprojekt</label
-            >
-          </div>
-
-          <!-- Inspections Section (hidden by default) -->
-          <div id="inspection-section" class="hidden">
-            <h3>Inspektioner</h3>
-            <p>Vælg de relevante inspektioner:</p>
-
-            <div class="form-group checkbox-group">
-              <input
-                type="checkbox"
-                id="firstInspection"
-                name="firstInspection"
-                class="inspection-checkbox"
-              />
-              <label for="firstInspection" style="display: inline-block"
-                >1. Inspektion</label
-              >
-
-              <div class="inspection-date hidden">
-                <label for="firstInspectionDate">Dato for 1. inspektion</label>
-                <input
-                  type="date"
-                  id="firstInspectionDate"
-                  name="firstInspectionDate"
-                />
-              </div>
-            </div>
-
-            <div class="form-group checkbox-group">
-              <input
-                type="checkbox"
-                id="wpsWpqr"
-                name="wpsWpqr"
-                class="inspection-checkbox"
-              />
-              <label for="wpsWpqr" style="display: inline-block"
-                >WPS/WPQR</label
-              >
-
-              <div class="inspection-date hidden">
-                <label for="wpsWpqrDate">Dato for WPS/WPQR</label>
-                <input type="date" id="wpsWpqrDate" name="wpsWpqrDate" />
-              </div>
-            </div>
-
-            <div class="form-group checkbox-group">
-              <input
-                type="checkbox"
-                id="ndt"
-                name="ndt"
-                class="inspection-checkbox"
-              />
-              <label for="ndt" style="display: inline-block">NDT</label>
-
-              <div class="inspection-date hidden">
-                <label for="ndtDate">Dato for NDT</label>
-                <input type="date" id="ndtDate" name="ndtDate" />
-              </div>
-            </div>
-
-            <div class="form-group checkbox-group">
-              <input
-                type="checkbox"
-                id="finalInspection"
-                name="finalInspection"
-                class="inspection-checkbox"
-              />
-              <label for="finalInspection" style="display: inline-block"
-                >Final Inspection</label
-              >
-
-              <div class="inspection-date hidden">
-                <label for="finalInspectionDate"
-                  >Dato for Final Inspection</label
-                >
-                <input
-                  type="date"
-                  id="finalInspectionDate"
-                  name="finalInspectionDate"
-                />
-              </div>
-            </div>
-
-            <div class="form-group checkbox-group">
-              <input
-                type="checkbox"
-                id="report"
-                name="report"
-                class="inspection-checkbox"
-              />
-              <label for="report" style="display: inline-block">Report</label>
-
-              <div class="inspection-date hidden">
-                <label for="reportDate">Dato for Report</label>
-                <input type="date" id="reportDate" name="reportDate" />
-              </div>
-            </div>
-          </div>
-
-          <div class="form-buttons">
-            <button type="reset" class="btn-secondary">Nulstil</button>
-            <button type="submit">Opret Projekt</button>
-          </div>
-        </form>
-      </div>
-
-      <div class="section">
-        <h2>Projekt Liste</h2>
-        <div id="project-list"></div>
+        </div>
       </div>
     </div>
 
     <script type="module">
-      import { createProject, initProjectForm } from "../js/projectOverview.js";
+      let allProjectsV2 = [];
+      let sortFieldV2 = "projectID";
+      let sortDirectionV2 = "asc";
+      let searchQueryV2 = "";
+
+      function updateSortButtonTextV2() {
+        const sortIcon = document.getElementById("sort-icon");
+        if (sortDirectionV2 === "asc") {
+          sortIcon.className = "bi bi-sort-alpha-down";
+        } else {
+          sortIcon.className = "bi bi-sort-alpha-up";
+        }
+      }
+
+      function filterAndSortProjectsV2() {
+        let filteredProjects = [...allProjectsV2];
+        if (searchQueryV2) {
+          const query = searchQueryV2.toLowerCase();
+          filteredProjects = filteredProjects.filter(
+            (project) =>
+              (project.projectID && project.projectID.toString().toLowerCase().includes(query)) ||
+              (project.name && project.name.toLowerCase().includes(query)) ||
+              (project.customer && project.customer.toLowerCase().includes(query))
+          );
+        }
+        filteredProjects.sort((a, b) => {
+          const valA = (a[sortFieldV2] || "").toString();
+          const valB = (b[sortFieldV2] || "").toString();
+          const comparison = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: "base" });
+          return sortDirectionV2 === "asc" ? comparison : -comparison;
+        });
+        window.renderProjectsV2(filteredProjects);
+      }
 
       document.addEventListener("DOMContentLoaded", () => {
-        const projectForm = document.getElementById("project-form");
-
-        // ... existing script ...
+        const searchInput = document.getElementById("search-input");
+        const searchButton = document.getElementById("search-button");
+        searchInput.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            searchQueryV2 = searchInput.value.trim();
+            filterAndSortProjectsV2();
+          }
+        });
+        searchButton.addEventListener("click", () => {
+          searchQueryV2 = searchInput.value.trim();
+          filterAndSortProjectsV2();
+        });
+        const sortFieldSelect = document.getElementById("sort-field");
+        const sortDirectionButton = document.getElementById("sort-direction");
+        sortFieldSelect.addEventListener("change", () => {
+          sortFieldV2 = sortFieldSelect.value;
+          sortDirectionV2 = "asc";
+          updateSortButtonTextV2();
+          filterAndSortProjectsV2();
+        });
+        sortDirectionButton.addEventListener("click", () => {
+          sortDirectionV2 = sortDirectionV2 === "asc" ? "desc" : "asc";
+          updateSortButtonTextV2();
+          filterAndSortProjectsV2();
+        });
       });
+
+      // Render function v2 for the new table
+      export function renderProjectsV2(projects) {
+        const tbody = document.getElementById("project-list-body-v2");
+        if (!tbody) return;
+        if (!projects || projects.length === 0) {
+          tbody.innerHTML = `<tr><td colspan='8' class='text-muted text-center'>Ingen projekter fundet.</td></tr>`;
+          return;
+        }
+        let html = "";
+        projects.forEach((project) => {
+          const startDate = project.startDate ? new Date(project.startDate).toLocaleDateString("da-DK") : "-";
+          const deadline = project.deadline ? new Date(project.deadline).toLocaleDateString("da-DK") : "-";
+          html += `
+            <tr>
+              <td>${project.projectID || "-"}</td>
+              <td>${project.name || "-"}</td>
+              <td>${project.customer || "-"}</td>
+              <td>${startDate}</td>
+              <td>${deadline}</td>
+              <td>${project.price != null ? project.price.toLocaleString("da-DK") + ' kr.' : "-"}</td>
+              <td>${project.isClassProject ? "Ja" : "Nej"}</td>
+              <td class="d-flex gap-1 align-items-center">
+                <button type="button" class="btn btn-info btn-sm btn-view-v2" data-id="${project._id}"><i class="bi bi-eye"></i> Vis</button>
+                <button type="button" class="btn btn-warning btn-sm btn-edit-v2" data-id="${project._id}"><i class="bi bi-pencil"></i> Rediger</button>
+                <button type="button" class="btn btn-danger btn-sm btn-delete-v2" data-id="${project._id}" data-name="${project.name}"><i class="bi bi-trash"></i> Slet</button>
+              </td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+        // Add event listeners for v2 buttons if needed
+      }
+      window.renderProjectsV2 = renderProjectsV2;
+
+      // Fetch and render data for the v2 table on page load
+      const API_URL = '/api'; // Use your actual API base path here
+      async function loadProjectsV2() {
+        try {
+          const response = await fetch(`${API_URL}/projects`);
+          const data = await response.json();
+          if (data.success && Array.isArray(data.data)) {
+            allProjectsV2 = data.data;
+            filterAndSortProjectsV2();
+          } else {
+            allProjectsV2 = [];
+            filterAndSortProjectsV2();
+          }
+        } catch (err) {
+          allProjectsV2 = [];
+          filterAndSortProjectsV2();
+        }
+      }
+      loadProjectsV2();
     </script>
+    <!-- Include Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+    ></script>
   </body>
 </html>
