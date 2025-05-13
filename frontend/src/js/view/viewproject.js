@@ -1,5 +1,5 @@
 // Move all script logic from viewProject.html to this file
-import { getProjectById, deleteProject } from "../../js/projectOverview.js";
+import { getProjectById, deleteProject } from "../overview/projectOverview";
 
 document.addEventListener("DOMContentLoaded", async () => {
   // Get project ID from URL parameters

@@ -1,5 +1,5 @@
 // Moved all inline script logic from editProject.html
-import { getProjectById, updateProject } from "../projectOverview.js";
+import { getProjectById, updateProject } from "../overview/projectOverview";
 
 let currentProjectMongoId = null;
 
