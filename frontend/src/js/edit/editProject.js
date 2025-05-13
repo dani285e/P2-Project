@@ -1,9 +1,5 @@
 // Moved all inline script logic from editProject.html
-<<<<<<< HEAD
 import { getProjectById, updateProject } from "../overview/projectOverview.js";
-=======
-import { getProjectById, updateProject } from "../overview/projectOverview";
->>>>>>> refs/remotes/origin/main
 
 let currentProjectMongoId = null;
 
