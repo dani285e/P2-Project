@@ -1,5 +1,5 @@
 // Moved all inline script logic from editProject.html
-import { getProjectById, updateProject } from "../projectOverview.js";
+import { getProjectById, updateProject } from "../overview/projectOverview.js";
 
 let currentProjectMongoId = null;
 
@@ -31,27 +31,45 @@ function populateForm(project) {
   document.getElementById("price").value = project.price;
   document.getElementById("description").value = project.description || "";
 
-  document.getElementById("start-date").value = formatDateForInput(project.startDate);
-  document.getElementById("deadline").value = formatDateForInput(project.deadline);
+  document.getElementById("start-date").value = formatDateForInput(
+    project.startDate
+  );
+  document.getElementById("deadline").value = formatDateForInput(
+    project.deadline
+  );
 
   const isClassProjectCheckbox = document.getElementById("is-class-project");
   isClassProjectCheckbox.checked = project.isClassProject;
 
-  document.getElementById("inspections-container").classList.toggle("d-none", !project.isClassProject);
+  document
+    .getElementById("inspections-container")
+    .classList.toggle("d-none", !project.isClassProject);
 
   if (project.inspections) {
-    setInspection("first-inspection", "first-inspection-date", project.inspections.firstInspection);
+    setInspection(
+      "first-inspection",
+      "first-inspection-date",
+      project.inspections.firstInspection
+    );
     setInspection("wps-wpqr", "wps-wpqr-date", project.inspections.wpsWpqr);
     setInspection("ndt", "ndt-date", project.inspections.ndt);
-    setInspection("final-inspection", "final-inspection-date", project.inspections.finalInspection);
+    setInspection(
+      "final-inspection",
+      "final-inspection-date",
+      project.inspections.finalInspection
+    );
     setInspection("report", "report-date", project.inspections.report);
   }
 }
 
 function setupEventListeners() {
-  document.getElementById("is-class-project").addEventListener("change", function () {
-    document.getElementById("inspections-container").classList.toggle("d-none", !this.checked);
-  });
+  document
+    .getElementById("is-class-project")
+    .addEventListener("change", function () {
+      document
+        .getElementById("inspections-container")
+        .classList.toggle("d-none", !this.checked);
+    });
 
   document.querySelectorAll(".inspection-checkbox").forEach((checkbox) => {
     checkbox.addEventListener("change", function () {
@@ -65,7 +83,9 @@ function setupEventListeners() {
     window.history.back();
   });
 
-  document.getElementById("edit-project-form").addEventListener("submit", handleFormSubmit);
+  document
+    .getElementById("edit-project-form")
+    .addEventListener("submit", handleFormSubmit);
 }
 
 async function handleFormSubmit(event) {
@@ -88,10 +108,16 @@ async function handleFormSubmit(event) {
 
   if (projectData.isClassProject) {
     projectData.inspections = {
-      firstInspection: getInspectionData("first-inspection", "first-inspection-date"),
+      firstInspection: getInspectionData(
+        "first-inspection",
+        "first-inspection-date"
+      ),
       wpsWpqr: getInspectionData("wps-wpqr", "wps-wpqr-date"),
       ndt: getInspectionData("ndt", "ndt-date"),
-      finalInspection: getInspectionData("final-inspection", "final-inspection-date"),
+      finalInspection: getInspectionData(
+        "final-inspection",
+        "final-inspection-date"
+      ),
       report: getInspectionData("report", "report-date"),
     };
   }

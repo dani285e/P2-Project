@@ -1,5 +1,5 @@
 // Move all script logic from viewProject.html to this file
-import { getProjectById, deleteProject } from "../../js/projectOverview.js";
+import { getProjectById, deleteProject } from "../overview/projectOverview.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   // Get project ID from URL parameters
@@ -22,14 +22,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.location.href = `/editProject?id=${projectId}`;
     });
 
-    document.getElementById("btn-delete").addEventListener("click", async () => {
-      try {
-        await deleteProject(projectId);
-        window.location.href = "/";
-      } catch (error) {
-        alert(`Fejl ved sletning af projekt: ${error.message}`);
-      }
-    });
+    document
+      .getElementById("btn-delete")
+      .addEventListener("click", async () => {
+        try {
+          await deleteProject(projectId);
+          window.location.href = "/";
+        } catch (error) {
+          alert(`Fejl ved sletning af projekt: ${error.message}`);
+        }
+      });
   } catch (error) {
     alert(`Fejl ved indlæsning af projekt: ${error.message}`);
     window.location.href = "/";
@@ -50,10 +52,16 @@ function renderProjectDetails(project) {
       <dt>Inspektioner</dt>
       <dd>
         <ul class="list-group">
-          ${renderInspection("1. Inspektion", project.inspections.firstInspection)}
+          ${renderInspection(
+            "1. Inspektion",
+            project.inspections.firstInspection
+          )}
           ${renderInspection("WPS/WPQR", project.inspections.wpsWpqr)}
           ${renderInspection("NDT", project.inspections.ndt)}
-          ${renderInspection("Final Inspection", project.inspections.finalInspection)}
+          ${renderInspection(
+            "Final Inspection",
+            project.inspections.finalInspection
+          )}
           ${renderInspection("Report", project.inspections.report)}
         </ul>
       </dd>

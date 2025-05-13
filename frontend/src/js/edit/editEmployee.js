@@ -1,7 +1,7 @@
 import {
   getEmployeeById,
   updateEmployee,
-} from "../employeeService.js";
+} from "../services/employeeService.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const employeeId = urlParams.get("id");
@@ -23,13 +23,21 @@ function renderSkills() {
   skillsList.innerHTML = "";
 
   if (skills.length === 0) {
-    skillsList.innerHTML = "<p class='text-muted'>Ingen færdigheder tilføjet endnu.</p>";
+    skillsList.innerHTML =
+      "<p class='text-muted'>Ingen færdigheder tilføjet endnu.</p>";
     return;
   }
 
   skills.forEach((skill, index) => {
     const skillItem = document.createElement("div");
-    skillItem.classList.add("badge", "bg-info", "text-dark", "d-flex", "align-items-center", "gap-2");
+    skillItem.classList.add(
+      "badge",
+      "bg-info",
+      "text-dark",
+      "d-flex",
+      "align-items-center",
+      "gap-2"
+    );
     skillItem.innerHTML = `${skill} <span class='text-danger' style='cursor: pointer;' data-index='${index}'>×</span>`;
     skillsList.appendChild(skillItem);
   });
@@ -52,7 +60,8 @@ function addSkill() {
     document.getElementById("skills-error").textContent = "";
     renderSkills();
   } else if (skills.includes(skill)) {
-    document.getElementById("skills-error").textContent = "Denne færdighed er allerede tilføjet.";
+    document.getElementById("skills-error").textContent =
+      "Denne færdighed er allerede tilføjet.";
   }
 }
 
@@ -94,15 +103,14 @@ form.addEventListener("submit", async (e) => {
     el.textContent = "";
   });
 
-  const employeeNumber = document
-    .getElementById("employeeNumber")
-    .value.trim();
+  const employeeNumber = document.getElementById("employeeNumber").value.trim();
   const name = document.getElementById("name").value.trim();
 
   let isValid = true;
 
   if (!employeeNumber) {
-    document.getElementById("employeeNumber-error").textContent = "Medarbejdernummer er påkrævet.";
+    document.getElementById("employeeNumber-error").textContent =
+      "Medarbejdernummer er påkrævet.";
     isValid = false;
   }
 
@@ -124,6 +132,8 @@ form.addEventListener("submit", async (e) => {
     window.location.href = "/employees";
   } catch (error) {
     console.error("Error updating employee:", error);
-    alert("Der opstod en fejl ved opdatering af medarbejderen. Prøv igen senere.");
+    alert(
+      "Der opstod en fejl ved opdatering af medarbejderen. Prøv igen senere."
+    );
   }
 });

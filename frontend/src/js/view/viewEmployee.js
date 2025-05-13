@@ -1,5 +1,8 @@
 // Moved all script logic from viewEmployee.html to this file
-import { getEmployeeById, deleteEmployee } from "../employeeService.js";
+import {
+  getEmployeeById,
+  deleteEmployee,
+} from "../services/employeeService.js";
 
 // Helper to render employee details
 function renderEmployeeDetails(employee) {
@@ -12,7 +15,8 @@ function renderEmployeeDetails(employee) {
       <ul class="list-inline">
         ${employee.skills
           .map(
-            (skill) => `<li class="list-inline-item badge bg-info text-dark">${skill}</li>`
+            (skill) =>
+              `<li class="list-inline-item badge bg-info text-dark">${skill}</li>`
           )
           .join("")}
       </ul>
@@ -31,10 +35,14 @@ function renderEmployeeDetails(employee) {
       <dd class="col-sm-8">${skillsHtml}</dd>
 
       <dt class="col-sm-4">Oprettet</dt>
-      <dd class="col-sm-8">${new Date(employee.createdAt).toLocaleString("da-DK")}</dd>
+      <dd class="col-sm-8">${new Date(employee.createdAt).toLocaleString(
+        "da-DK"
+      )}</dd>
 
       <dt class="col-sm-4">Sidst opdateret</dt>
-      <dd class="col-sm-8">${new Date(employee.updatedAt).toLocaleString("da-DK")}</dd>
+      <dd class="col-sm-8">${new Date(employee.updatedAt).toLocaleString(
+        "da-DK"
+      )}</dd>
     </dl>
   `;
 }
@@ -60,11 +68,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.location.href = `/editEmployee?id=${employeeId}`;
     });
 
-    document.getElementById("btn-delete").addEventListener("click", async () => {
-      if (await deleteEmployee(employeeId)) {
-        window.location.href = "/employees";
-      }
-    });
+    document
+      .getElementById("btn-delete")
+      .addEventListener("click", async () => {
+        if (await deleteEmployee(employeeId)) {
+          window.location.href = "/employees";
+        }
+      });
   } catch (error) {
     alert(`Fejl ved indlæsning af medarbejder: ${error.message}`);
     window.location.href = "/employees";

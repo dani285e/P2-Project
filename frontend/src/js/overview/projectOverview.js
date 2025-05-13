@@ -18,7 +18,8 @@ function filterAndSortProjectsV2() {
     const query = searchQueryV2.toLowerCase();
     filteredProjects = filteredProjects.filter(
       (project) =>
-        (project.projectID && project.projectID.toString().toLowerCase().includes(query)) ||
+        (project.projectID &&
+          project.projectID.toString().toLowerCase().includes(query)) ||
         (project.name && project.name.toLowerCase().includes(query)) ||
         (project.customer && project.customer.toLowerCase().includes(query))
     );
@@ -26,7 +27,10 @@ function filterAndSortProjectsV2() {
   filteredProjects.sort((a, b) => {
     const valA = (a[sortFieldV2] || "").toString();
     const valB = (b[sortFieldV2] || "").toString();
-    const comparison = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: "base" });
+    const comparison = valA.localeCompare(valB, undefined, {
+      numeric: true,
+      sensitivity: "base",
+    });
     return sortDirectionV2 === "asc" ? comparison : -comparison;
   });
   window.renderProjectsV2(filteredProjects);
@@ -35,29 +39,37 @@ function filterAndSortProjectsV2() {
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("search-input");
   const searchButton = document.getElementById("search-button");
-  searchInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      searchQueryV2 = searchInput.value.trim();
-      filterAndSortProjectsV2();
-    }
-  });
-  searchButton.addEventListener("click", () => {
-    searchQueryV2 = searchInput.value.trim();
-    filterAndSortProjectsV2();
-  });
   const sortFieldSelect = document.getElementById("sort-field");
   const sortDirectionButton = document.getElementById("sort-direction");
-  sortFieldSelect.addEventListener("change", () => {
-    sortFieldV2 = sortFieldSelect.value;
-    sortDirectionV2 = "asc";
-    updateSortButtonTextV2();
-    filterAndSortProjectsV2();
-  });
-  sortDirectionButton.addEventListener("click", () => {
-    sortDirectionV2 = sortDirectionV2 === "asc" ? "desc" : "asc";
-    updateSortButtonTextV2();
-    filterAndSortProjectsV2();
-  });
+
+  // Only add search listeners if search elements exist
+  if (searchInput && searchButton) {
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        searchQueryV2 = searchInput.value.trim();
+        filterAndSortProjectsV2();
+      }
+    });
+    searchButton.addEventListener("click", () => {
+      searchQueryV2 = searchInput.value.trim();
+      filterAndSortProjectsV2();
+    });
+  }
+
+  // Only add sort listeners if sort elements exist
+  if (sortFieldSelect && sortDirectionButton) {
+    sortFieldSelect.addEventListener("change", () => {
+      sortFieldV2 = sortFieldSelect.value;
+      sortDirectionV2 = "asc";
+      updateSortButtonTextV2();
+      filterAndSortProjectsV2();
+    });
+    sortDirectionButton.addEventListener("click", () => {
+      sortDirectionV2 = sortDirectionV2 === "asc" ? "desc" : "asc";
+      updateSortButtonTextV2();
+      filterAndSortProjectsV2();
+    });
+  }
 });
 
 // Render function v2 for the new table
@@ -70,8 +82,12 @@ export function renderProjectsV2(projects) {
   }
   let html = "";
   projects.forEach((project) => {
-    const startDate = project.startDate ? new Date(project.startDate).toLocaleDateString("da-DK") : "-";
-    const deadline = project.deadline ? new Date(project.deadline).toLocaleDateString("da-DK") : "-";
+    const startDate = project.startDate
+      ? new Date(project.startDate).toLocaleDateString("da-DK")
+      : "-";
+    const deadline = project.deadline
+      ? new Date(project.deadline).toLocaleDateString("da-DK")
+      : "-";
     html += `
       <tr>
         <td>${project.projectID || "-"}</td>
@@ -79,13 +95,27 @@ export function renderProjectsV2(projects) {
         <td class="d-none d-md-table-cell">${project.customer || "-"}</td>
         <td class="d-none d-lg-table-cell">${startDate}</td>
         <td class="d-none d-lg-table-cell">${deadline}</td>
-        <td class="d-none d-xl-table-cell">${project.price != null ? project.price.toLocaleString("da-DK") + ' kr.' : "-"}</td>
-        <td class="d-none d-xl-table-cell">${project.isClassProject ? "Ja" : "Nej"}</td>
+        <td class="d-none d-xl-table-cell">${
+          project.price != null
+            ? project.price.toLocaleString("da-DK") + " kr."
+            : "-"
+        }</td>
+        <td class="d-none d-xl-table-cell">${
+          project.isClassProject ? "Ja" : "Nej"
+        }</td>
         <td>
           <div class="btn-group" role="group">
-            <button type="button" class="btn btn-info btn-sm btn-view-v2 me-1" data-id="${project._id}"><i class="bi bi-eye"></i> Vis</button>
-            <button type="button" class="btn btn-warning btn-sm btn-edit-v2 me-1" data-id="${project._id}"><i class="bi bi-pencil"></i> Rediger</button>
-            <button type="button" class="btn btn-danger btn-sm btn-delete-v2" data-id="${project._id}" data-name="${project.name}"><i class="bi bi-trash"></i> Slet</button>
+            <button type="button" class="btn btn-info btn-sm btn-view-v2 me-1" data-id="${
+              project._id
+            }"><i class="bi bi-eye"></i> Vis</button>
+            <button type="button" class="btn btn-warning btn-sm btn-edit-v2 me-1" data-id="${
+              project._id
+            }"><i class="bi bi-pencil"></i> Rediger</button>
+            <button type="button" class="btn btn-danger btn-sm btn-delete-v2" data-id="${
+              project._id
+            }" data-name="${
+      project.name
+    }"><i class="bi bi-trash"></i> Slet</button>
           </div>
         </td>
       </tr>
@@ -116,7 +146,11 @@ export function renderProjectsV2(projects) {
       if (typeof window.handleDeleteProject === "function") {
         window.handleDeleteProject(btn.dataset.id, btn.dataset.name);
       } else {
-        console.warn("window.handleDeleteProject is not a function", btn.dataset.id, btn.dataset.name);
+        console.warn(
+          "window.handleDeleteProject is not a function",
+          btn.dataset.id,
+          btn.dataset.name
+        );
       }
     });
   });
@@ -125,24 +159,26 @@ window.renderProjectsV2 = renderProjectsV2;
 
 // Add global functions for button actions if not already defined
 if (typeof window.viewProject !== "function") {
-  window.viewProject = function(id) {
+  window.viewProject = function (id) {
     window.location.href = `/viewProject?id=${id}`;
   };
 }
 if (typeof window.editProject !== "function") {
-  window.editProject = function(id) {
+  window.editProject = function (id) {
     window.location.href = `/editProject?id=${id}`;
   };
 }
 if (typeof window.handleDeleteProject !== "function") {
-  window.handleDeleteProject = async function(id, name) {
+  window.handleDeleteProject = async function (id, name) {
     if (confirm(`Er du sikker på, at du vil slette projektet \"${name}\"?`)) {
       try {
-        const response = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+        const response = await fetch(`/api/projects/${id}`, {
+          method: "DELETE",
+        });
         const data = await response.json();
         if (data.success) {
           // Remove from local array and re-render
-          allProjectsV2 = allProjectsV2.filter(p => p._id !== id);
+          allProjectsV2 = allProjectsV2.filter((p) => p._id !== id);
           filterAndSortProjectsV2();
           alert(`Projekt ${name} er slettet.`);
         } else {
@@ -156,7 +192,7 @@ if (typeof window.handleDeleteProject !== "function") {
 }
 
 // Fetch and render data for the v2 table on page load
-const API_URL = '/api'; // Use your actual API base path here
+const API_URL = "/api"; // Use your actual API base path here
 async function loadProjectsV2() {
   try {
     const response = await fetch(`${API_URL}/projects`);
@@ -174,3 +210,74 @@ async function loadProjectsV2() {
   }
 }
 loadProjectsV2();
+
+// API functions
+export async function getProjectById(id) {
+  try {
+    const response = await fetch(`${API_URL}/projects/${id}`);
+    const data = await response.json();
+    if (data.success) {
+      return data.data;
+    } else {
+      throw new Error(data.message || "Kunne ikke hente projekt");
+    }
+  } catch (error) {
+    throw new Error(`Fejl ved hentning af projekt: ${error.message}`);
+  }
+}
+
+export async function deleteProject(id) {
+  try {
+    const response = await fetch(`${API_URL}/projects/${id}`, {
+      method: "DELETE",
+    });
+    const data = await response.json();
+    if (data.success) {
+      return true;
+    } else {
+      throw new Error(data.message || "Kunne ikke slette projekt");
+    }
+  } catch (error) {
+    throw new Error(`Fejl ved sletning af projekt: ${error.message}`);
+  }
+}
+
+export async function updateProject(id, projectData) {
+  try {
+    const response = await fetch(`${API_URL}/projects/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(projectData),
+    });
+    const data = await response.json();
+    if (data.success) {
+      return data.data;
+    } else {
+      throw new Error(data.message || "Kunne ikke opdatere projekt");
+    }
+  } catch (error) {
+    throw new Error(`Fejl ved opdatering af projekt: ${error.message}`);
+  }
+}
+
+export async function createProject(projectData) {
+  try {
+    const response = await fetch(`${API_URL}/projects`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(projectData),
+    });
+    const data = await response.json();
+    if (data.success) {
+      return data.data;
+    } else {
+      throw new Error(data.message || "Kunne ikke oprette projekt");
+    }
+  } catch (error) {
+    throw new Error(`Fejl ved oprettelse af projekt: ${error.message}`);
+  }
+}

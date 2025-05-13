@@ -1,4 +1,4 @@
-import { createProject } from "../../js/projectOverview.js";
+import { createProject } from "../overview/projectOverview.js";
 
 function toggleDateInput(checkboxId, dateContainerId) {
   const checkbox = document.getElementById(checkboxId);
@@ -12,7 +12,9 @@ function toggleDateInput(checkboxId, dateContainerId) {
 }
 
 function setupInspectionCheckboxes() {
-  const inspectionCheckboxes = document.querySelectorAll(".inspection-checkbox");
+  const inspectionCheckboxes = document.querySelectorAll(
+    ".inspection-checkbox"
+  );
 
   inspectionCheckboxes.forEach((checkbox) => {
     const id = checkbox.id;

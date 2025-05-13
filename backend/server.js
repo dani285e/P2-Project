@@ -12,7 +12,7 @@ import { fileURLToPath } from "url";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5010;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -74,19 +74,27 @@ app.get("/create-employee", (req, res) => {
 });
 
 app.get("/viewEmployee", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/view/viewEmployee.html"));
+  res.sendFile(
+    path.join(__dirname, "../frontend/src/pages/view/viewEmployee.html")
+  );
 });
 
 app.get("/editEmployee", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/edit/editEmployee.html"));
+  res.sendFile(
+    path.join(__dirname, "../frontend/src/pages/edit/editEmployee.html")
+  );
 });
 
 app.get("/viewProject", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/view/viewProject.html"));
+  res.sendFile(
+    path.join(__dirname, "../frontend/src/pages/view/viewProject.html")
+  );
 });
 
 app.get("/editProject", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/edit/editProject.html"));
+  res.sendFile(
+    path.join(__dirname, "../frontend/src/pages/edit/editProject.html")
+  );
 });
 
 app.get("/create-machine", (req, res) => {
@@ -96,21 +104,29 @@ app.get("/create-machine", (req, res) => {
 });
 
 app.get("/viewMachine", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/view/viewMachine.html"));
+  res.sendFile(
+    path.join(__dirname, "../frontend/src/pages/view/viewMachine.html")
+  );
 });
 
 app.get("/editMachine", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/edit/editMachine.html"));
+  res.sendFile(
+    path.join(__dirname, "../frontend/src/pages/edit/editMachine.html")
+  );
 });
 
 // Serve projectOverview.html for the '/project' route
 app.get("/project", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/overview/projectOverview.html"));
+  res.sendFile(
+    path.join(__dirname, "../frontend/src/pages/overview/projectOverview.html")
+  );
 });
 
 // Serve projectOverview.html for the root route, but keep the URL as '/'
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/src/pages/overview/projectOverview.html"));
+  res.sendFile(
+    path.join(__dirname, "../frontend/src/pages/overview/projectOverview.html")
+  );
 });
 
 app.listen(PORT, async () => {
