@@ -266,12 +266,19 @@ const loadBookings = async () => {
 // Opret booking
 const createBooking = async (bookingData) => {
   try {
+    // Konverter datoer til UTC
+    const bookingDataUTC = {
+      ...bookingData,
+      startTime: new Date(bookingData.startTime).toISOString(),
+      endTime: new Date(bookingData.endTime).toISOString(),
+    };
+
     const response = await fetch(`${API_URL}/bookings`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(bookingData),
+      body: JSON.stringify(bookingDataUTC),
     });
 
     const result = await response.json();
@@ -290,12 +297,19 @@ const createBooking = async (bookingData) => {
 // Opdater booking
 const updateBooking = async (id, bookingData) => {
   try {
+    // Konverter datoer til UTC
+    const bookingDataUTC = {
+      ...bookingData,
+      startTime: new Date(bookingData.startTime).toISOString(),
+      endTime: new Date(bookingData.endTime).toISOString(),
+    };
+
     const response = await fetch(`${API_URL}/bookings/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(bookingData),
+      body: JSON.stringify(bookingDataUTC),
     });
 
     const result = await response.json();
@@ -362,8 +376,8 @@ const openCreateBookingModal = () => {
   const deleteBtn = document.getElementById("deleteBtn");
   const bookingModalElement = document.getElementById("bookingModal");
   const bookingModal = new bootstrap.Modal(bookingModalElement, {
-    backdrop: 'static', // Prevent accidental closing by clicking outside
-    keyboard: false,   // Disable closing with the Escape key
+    backdrop: "static", // Prevent accidental closing by clicking outside
+    keyboard: false, // Disable closing with the Escape key
   });
 
   modalTitle.textContent = "Opret Ny Booking";
@@ -394,8 +408,8 @@ const openEditBookingModal = (booking) => {
   const deleteBtn = document.getElementById("deleteBtn");
   const bookingModalElement = document.getElementById("bookingModal");
   const bookingModal = new bootstrap.Modal(bookingModalElement, {
-    backdrop: 'static', // Prevent accidental closing by clicking outside
-    keyboard: false,   // Disable closing with the Escape key
+    backdrop: "static", // Prevent accidental closing by clicking outside
+    keyboard: false, // Disable closing with the Escape key
   });
 
   modalTitle.textContent = "Rediger Booking";
@@ -722,14 +736,24 @@ const renderTimeline = () => {
           }
 
           cellContent += `
-            <div class="${bookingClass}" data-booking-id="${booking.bookingID}" data-machine-id="${machine._id}" style="${style}">
+            <div class="${bookingClass}" data-booking-id="${
+            booking.bookingID
+          }" data-machine-id="${machine._id}" style="${style}">
               <div><strong>${projectName}</strong></div>
-              <div>${formatTimeOnly(displayStart)} - ${formatTimeOnly(displayEnd)}</div>
+              <div>${formatTimeOnly(displayStart)} - ${formatTimeOnly(
+            displayEnd
+          )}</div>
               <div class="booking-tooltip">
                 <p><strong>Projekt:</strong> ${projectName}</p>
-                <p><strong>Start:</strong> ${formatDateTime(booking.startTime)}</p>
+                <p><strong>Start:</strong> ${formatDateTime(
+                  booking.startTime
+                )}</p>
                 <p><strong>Slut:</strong> ${formatDateTime(booking.endTime)}</p>
-                ${booking.notes ? `<p><strong>Noter:</strong> ${booking.notes}</p>` : ""}
+                ${
+                  booking.notes
+                    ? `<p><strong>Noter:</strong> ${booking.notes}</p>`
+                    : ""
+                }
                 <p><strong>Medarbejdere:</strong> ${
                   booking.employeeIDs && booking.employeeIDs.length > 0
                     ? booking.employeeIDs.map((e) => e.name).join(", ")
@@ -799,9 +823,14 @@ const handleFormSubmit = async (e) => {
   if (conflicts) {
     const conflictMessages = conflicts.map(
       (conflict) =>
-        `${formatTimeOnly(conflict.startTime)} - ${formatTimeOnly(conflict.endTime)}`
+        `${formatTimeOnly(conflict.startTime)} - ${formatTimeOnly(
+          conflict.endTime
+        )}`
     );
-    showAlert(`Tidsrummet (${conflictMessages.join(", ")}) er allerede optaget.`, "danger");
+    showAlert(
+      `Tidsrummet (${conflictMessages.join(", ")}) er allerede optaget.`,
+      "danger"
+    );
     return;
   }
 
