@@ -1,10 +1,4 @@
-// Move all script logic from viewProject.html to this file
-<<<<<<< HEAD
 import { getProjectById, deleteProject } from "../overview/projectOverview.js";
-=======
-import { getProjectById, deleteProject } from "../overview/projectOverview";
->>>>>>> refs/remotes/origin/main
-
 document.addEventListener("DOMContentLoaded", async () => {
   // Get project ID from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
