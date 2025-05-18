@@ -14,15 +14,33 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">Projektstyringssystem</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item"><a class="nav-link" aria-current="page" href="/project">Projekter</a></li>
-            <li class="nav-item"><a class="nav-link" href="/employees">Medarbejdere</a></li>
-            <li class="nav-item"><a class="nav-link" href="/machines">Maskiner</a></li>
-            <li class="nav-item"><a class="nav-link active" href="/bookings">Bookinger</a></li>
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="/project"
+                >Projekter</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/employees">Medarbejdere</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/machines">Maskiner</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/bookings">Bookinger</a>
+            </li>
           </ul>
           <a id="createBookingBtn" class="btn btn-success">Opret Ny Booking</a>
         </div>
@@ -36,9 +54,13 @@
       <div class="card">
         <div class="d-flex justify-content-between align-items-center mb-3 p-1">
           <div class="btn-group" role="group">
-            <button id="prevWeek" class="btn btn-outline-primary">« Forrige Uge</button>
+            <button id="prevWeek" class="btn btn-outline-primary">
+              « Forrige Uge
+            </button>
             <span id="currentDateRange" class="btn btn-outline-primary"></span>
-            <button id="nextWeek" class="btn btn-outline-primary">Næste Uge »</button>
+            <button id="nextWeek" class="btn btn-outline-primary">
+              Næste Uge »
+            </button>
           </div>
           <button id="todayButton" class="btn btn-primary">I dag</button>
         </div>
@@ -50,7 +72,14 @@
     </div>
 
     <!-- Modal for opret/rediger booking -->
-    <div id="bookingModal" class="modal fade" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" style="display: none;">
+    <div
+      id="bookingModal"
+      class="modal fade"
+      tabindex="-1"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      style="display: none"
+    >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -85,14 +114,24 @@
 
               <div class="mb-3">
                 <label for="machine" class="form-label">Maskine*</label>
-                <select id="machine" name="machine" class="form-select" required>
+                <select
+                  id="machine"
+                  name="machine"
+                  class="form-select"
+                  required
+                >
                   <option value="">Vælg en maskine</option>
                 </select>
               </div>
 
               <div class="mb-3">
                 <label for="project" class="form-label">Projekt*</label>
-                <select id="project" name="project" class="form-select" required>
+                <select
+                  id="project"
+                  name="project"
+                  class="form-select"
+                  required
+                >
                   <option value="">Vælg et projekt</option>
                 </select>
               </div>
@@ -108,7 +147,9 @@
               </div>
 
               <div class="mb-3">
-                <label for="startTime" class="form-label">Starttidspunkt*</label>
+                <label for="startTime" class="form-label"
+                  >Starttidspunkt*</label
+                >
                 <input
                   type="datetime-local"
                   id="startTime"
@@ -148,11 +189,7 @@
                 >
                   Annuller
                 </button>
-                <button 
-                  type="submit" 
-                  class="btn btn-primary"
-                  >Gem
-                </button>
+                <button type="submit" class="btn btn-primary">Gem</button>
                 <button
                   type="button"
                   class="btn btn-danger d-none"
@@ -167,9 +204,7 @@
       </div>
     </div>
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="../../js/services/bookingService.js"></script>
     <script type="module" src="../../js/overview/bookingOverview.js"></script>
   </body>

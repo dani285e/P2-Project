@@ -150,7 +150,100 @@ const loadEmployees = async () => {
   }
 };
 
-// Hent alle bookinger fra API
+// Find ugyldige bookinger
+const findInvalidBookings = (bookings) => {
+  const invalidMachineBookings = bookings.filter(
+    (booking) => !booking.machineID || !booking.machineID._id
+  );
+
+  const invalidProjectBookings = bookings.filter(
+    (booking) =>
+      booking.machineID &&
+      booking.machineID._id && // Kun gyldig maskine
+      booking.maintenanceType !== "general" && // Ikke vedligeholdelse
+      (!booking.projectID || !booking.projectID._id) // Manglende projektID
+  );
+
+  return {
+    invalidMachineBookings,
+    invalidProjectBookings,
+    allInvalid: [...invalidMachineBookings, ...invalidProjectBookings],
+  };
+};
+
+// Vis advarsel om ugyldige bookinger
+const showInvalidBookingsWarning = (
+  invalidBookings,
+  invalidMachineBookings,
+  invalidProjectBookings
+) => {
+  const alertDiv = document.createElement("div");
+  alertDiv.className = "alert alert-warning";
+  alertDiv.style.padding = "10px";
+  alertDiv.style.margin = "10px 0";
+  alertDiv.style.backgroundColor = "#fff3cd";
+  alertDiv.style.color = "#856404";
+  alertDiv.style.borderRadius = "4px";
+  alertDiv.style.border = "1px solid #ffeeba";
+
+  const machineMessage =
+    invalidMachineBookings.length > 0
+      ? `${invalidMachineBookings.length} med slettede maskiner`
+      : "";
+  const projectMessage =
+    invalidProjectBookings.length > 0
+      ? `${invalidProjectBookings.length} med slettede projekter`
+      : "";
+  const detailMessage = [machineMessage, projectMessage]
+    .filter(Boolean)
+    .join(" og ");
+
+  alertDiv.innerHTML = `
+    <strong>Advarsel:</strong> Der blev fundet ${invalidBookings.length} booking(er) (${detailMessage}).
+    <br>Disse bookinger vises ikke i tidslinjen. Du bør slette dem for at undgå fejl.
+    <br><button id="cleanupButton" style="margin-top: 8px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Ryd op (slet ugyldige bookinger)</button>
+  `;
+
+  const existingAlert = document.querySelector(".alert-warning");
+  if (!existingAlert) {
+    bookingTimeline.parentNode.insertBefore(alertDiv, bookingTimeline);
+    setupCleanupButton(invalidBookings);
+  }
+};
+
+// Opsæt oprydningsknap
+const setupCleanupButton = (invalidBookings) => {
+  document
+    .getElementById("cleanupButton")
+    .addEventListener("click", async () => {
+      if (
+        confirm(
+          "Er du sikker på, at du vil slette alle bookinger med slettede maskiner eller projekter? Denne handling kan ikke fortrydes."
+        )
+      ) {
+        try {
+          let deletedCount = 0;
+          for (const booking of invalidBookings) {
+            try {
+              await deleteBooking(booking.bookingID);
+              deletedCount++;
+            } catch (err) {
+              console.error(
+                `Kunne ikke slette booking ${booking.bookingID}:`,
+                err
+              );
+            }
+          }
+          alert(`${deletedCount} ugyldige bookinger blev slettet.`);
+          refreshData();
+        } catch (error) {
+          alert(`Der opstod en fejl: ${error.message}`);
+        }
+      }
+    });
+};
+
+// Hovedfunktion til at hente bookinger
 const loadBookings = async () => {
   try {
     const response = await fetch(`${API_URL}/bookings`);
@@ -161,98 +254,21 @@ const loadBookings = async () => {
     }
 
     const data = result.data;
+    const { invalidMachineBookings, invalidProjectBookings, allInvalid } =
+      findInvalidBookings(data);
 
-    // Tjek om der er bookinger med slettede maskiner eller projekter
-    const invalidMachineBookings = data.filter(
-      (booking) => !booking.machineID || !booking.machineID._id
-    );
-
-    const invalidProjectBookings = data.filter(
-      (booking) =>
-        booking.machineID &&
-        booking.machineID._id && // Kun gyldig maskine
-        booking.maintenanceType !== "general" && // Ikke vedligeholdelse
-        (!booking.projectID || !booking.projectID._id) // Manglende projektID
-    );
-
-    const invalidBookings = [
-      ...invalidMachineBookings,
-      ...invalidProjectBookings,
-    ];
-
-    if (invalidBookings.length > 0) {
+    if (allInvalid.length > 0) {
       console.warn(
-        `Der blev fundet ${invalidBookings.length} booking(er) med slettede maskiner eller projekter.`
+        `Der blev fundet ${allInvalid.length} booking(er) med slettede maskiner eller projekter.`
       );
       console.warn("Disse bookinger kan ikke vises korrekt i tidslinjen.");
       console.warn("Du bør slette disse bookinger for at undgå fejl.");
 
-      // Vis en fejlmeddelelse øverst på siden
-      const alertDiv = document.createElement("div");
-      alertDiv.className = "alert alert-warning";
-      alertDiv.style.padding = "10px";
-      alertDiv.style.margin = "10px 0";
-      alertDiv.style.backgroundColor = "#fff3cd";
-      alertDiv.style.color = "#856404";
-      alertDiv.style.borderRadius = "4px";
-      alertDiv.style.border = "1px solid #ffeeba";
-
-      // Specificér typen af ugyldige bookinger
-      const machineMessage =
-        invalidMachineBookings.length > 0
-          ? `${invalidMachineBookings.length} med slettede maskiner`
-          : "";
-      const projectMessage =
-        invalidProjectBookings.length > 0
-          ? `${invalidProjectBookings.length} med slettede projekter`
-          : "";
-      const detailMessage = [machineMessage, projectMessage]
-        .filter(Boolean)
-        .join(" og ");
-
-      alertDiv.innerHTML = `
-        <strong>Advarsel:</strong> Der blev fundet ${invalidBookings.length} booking(er) (${detailMessage}).
-        <br>Disse bookinger vises ikke i tidslinjen. Du bør slette dem for at undgå fejl.
-        <br><button id="cleanupButton" style="margin-top: 8px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Ryd op (slet ugyldige bookinger)</button>
-      `;
-
-      // Indsæt advarslen øverst i tidslinjen
-      const existingAlert = document.querySelector(".alert-warning");
-      if (!existingAlert) {
-        bookingTimeline.parentNode.insertBefore(alertDiv, bookingTimeline);
-
-        // Tilføj event listener til oprydningsknappen
-        document
-          .getElementById("cleanupButton")
-          .addEventListener("click", async () => {
-            if (
-              confirm(
-                "Er du sikker på, at du vil slette alle bookinger med slettede maskiner eller projekter? Denne handling kan ikke fortrydes."
-              )
-            ) {
-              try {
-                let deletedCount = 0;
-
-                for (const booking of invalidBookings) {
-                  try {
-                    await deleteBooking(booking.bookingID);
-                    deletedCount++;
-                  } catch (err) {
-                    console.error(
-                      `Kunne ikke slette booking ${booking.bookingID}:`,
-                      err
-                    );
-                  }
-                }
-
-                alert(`${deletedCount} ugyldige bookinger blev slettet.`);
-                refreshData(); // Genindlæs data
-              } catch (error) {
-                alert(`Der opstod en fejl: ${error.message}`);
-              }
-            }
-          });
-      }
+      showInvalidBookingsWarning(
+        allInvalid,
+        invalidMachineBookings,
+        invalidProjectBookings
+      );
     }
 
     bookings = data;
