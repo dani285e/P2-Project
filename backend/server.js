@@ -9,6 +9,7 @@ import cors from "cors";
 import { updateAllMachineStatuses } from "./controllers/machine.controller.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createError } from "./errorHandler.js"; // Import error handler
 
 dotenv.config();
 const app = express();
@@ -129,6 +130,39 @@ app.get("/", (req, res) => {
   );
 });
 
+
+
+// 404 Handler (For all undefined routes)
+app.use((req, res, next) => {
+  next(createError(404, `Resource not found: ${req.originalUrl}`));
+});
+
+
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+  const statusCode = err.status || 500;
+  const statusText = {
+    400: "Bad Request",
+    401: "Unauthorized",
+    403: "Forbidden",
+    404: "Not Found",
+    409: "Conflict",
+    500: "Internal Server Error"
+  };
+
+  const response = {
+    status: statusCode,
+    error: statusText[statusCode] || "Unknown Error",
+    message: err.message || statusText[statusCode] || "An unexpected error occurred."
+  };
+
+  console.error(`[${statusCode}] ${err.message}`);
+  res.status(statusCode).json(response);
+});
+
+
+
+// Start server and connect to database
 app.listen(PORT, async () => {
   await connectDB();
 
