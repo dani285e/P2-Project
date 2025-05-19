@@ -1,6 +1,8 @@
 const machineList = document.getElementById("machine-list");
 const createMachineBtn = document.getElementById("createMachineBtn");
-const machineModal = new bootstrap.Modal(document.getElementById("machineModal"));
+const machineModal = new bootstrap.Modal(
+  document.getElementById("machineModal")
+);
 const machineForm = document.getElementById("machineForm");
 const modalTitle = document.getElementById("modalTitle");
 const machineId = document.getElementById("machineId");
@@ -35,7 +37,8 @@ async function loadMachines() {
 
 function renderMachineList(machines) {
   if (machines.length === 0) {
-    machineList.innerHTML = "<p class='text-muted text-center'>Ingen maskiner fundet. Opret en ny maskine for at komme i gang.</p>";
+    machineList.innerHTML =
+      "<p class='text-muted text-center'>Ingen maskiner fundet. Opret en ny maskine for at komme i gang.</p>";
     return;
   }
 
@@ -52,7 +55,10 @@ function renderMachineList(machines) {
   `;
 
   machines.forEach((machine) => {
-    const statusClass = machine.status === "Ledig" ? "bg-success text-white" : "bg-danger text-white";
+    const statusClass =
+      machine.status === "Ledig"
+        ? "bg-success text-white"
+        : "bg-danger text-white";
 
     html += `
       <tr>
@@ -127,7 +133,9 @@ async function saveMachine(e) {
     machineModal.hide();
     loadMachines();
 
-    const message = isEditing ? "Maskinen er blevet opdateret" : "Ny maskine er blevet oprettet";
+    const message = isEditing
+      ? "Maskinen er blevet opdateret"
+      : "Ny maskine er blevet oprettet";
     alert(message);
   } catch (error) {
     console.error("Fejl ved gem maskine:", error);
@@ -136,23 +144,42 @@ async function saveMachine(e) {
 }
 
 async function deleteMachine(id, name) {
-  const confirmDelete = window.confirm(`Er du sikker på, at du vil slette maskinen \"${name}\"?`);
-
-  if (!confirmDelete) return;
-
   try {
-    const response = await fetch(`${API_URL}/machines/${id}`, {
-      method: "DELETE",
-    });
+    // Tjek først antal bookinger
+    const checkResponse = await fetch(`/api/machines/${id}/check-bookings`);
+    const checkData = await checkResponse.json();
 
-    const result = await response.json();
-
-    if (!result.success) {
-      throw new Error(result.message || "Der opstod en fejl");
+    if (!checkData.success) {
+      throw new Error(checkData.message);
     }
 
-    loadMachines();
-    alert("Maskinen er blevet slettet");
+    let confirmMessage = `Er du sikker på, at du vil slette maskinen "${name}"?`;
+
+    if (checkData.count > 0) {
+      confirmMessage += `\n\nADVARSEL: Dette vil også slette ${checkData.count} tilknyttede booking(er):\n`;
+      checkData.bookings.forEach((booking) => {
+        const startDate = new Date(booking.startTime).toLocaleDateString(
+          "da-DK"
+        );
+        const endDate = new Date(booking.endTime).toLocaleDateString("da-DK");
+        confirmMessage += `\n- Booking ${booking.bookingID}: ${startDate} til ${endDate}`;
+      });
+    }
+
+    if (confirm(confirmMessage)) {
+      const response = await fetch(`${API_URL}/machines/${id}`, {
+        method: "DELETE",
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.message || "Der opstod en fejl");
+      }
+
+      loadMachines();
+      alert("Maskinen er blevet slettet");
+    }
   } catch (error) {
     console.error("Fejl ved sletning af maskine:", error);
     alert(`Der opstod en fejl ved sletning: ${error.message}`);

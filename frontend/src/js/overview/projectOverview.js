@@ -170,8 +170,29 @@ if (typeof window.editProject !== "function") {
 }
 if (typeof window.handleDeleteProject !== "function") {
   window.handleDeleteProject = async function (id, name) {
-    if (confirm(`Er du sikker på, at du vil slette projektet \"${name}\"?`)) {
-      try {
+    try {
+      // Tjek først antal bookinger
+      const checkResponse = await fetch(`/api/projects/${id}/check-bookings`);
+      const checkData = await checkResponse.json();
+
+      if (!checkData.success) {
+        throw new Error(checkData.message);
+      }
+
+      let confirmMessage = `Er du sikker på, at du vil slette projektet "${name}"?`;
+
+      if (checkData.count > 0) {
+        confirmMessage += `\n\nADVARSEL: Dette vil også slette ${checkData.count} tilknyttede booking(er):\n`;
+        checkData.bookings.forEach((booking) => {
+          const startDate = new Date(booking.startTime).toLocaleDateString(
+            "da-DK"
+          );
+          const endDate = new Date(booking.endTime).toLocaleDateString("da-DK");
+          confirmMessage += `\n- Booking ${booking.bookingID}: ${startDate} til ${endDate}`;
+        });
+      }
+
+      if (confirm(confirmMessage)) {
         const response = await fetch(`/api/projects/${id}`, {
           method: "DELETE",
         });
@@ -184,9 +205,9 @@ if (typeof window.handleDeleteProject !== "function") {
         } else {
           alert(data.message || "Kunne ikke slette projektet.");
         }
-      } catch (err) {
-        alert("Der opstod en fejl ved sletning af projektet.");
       }
+    } catch (err) {
+      alert("Der opstod en fejl ved sletning af projektet.");
     }
   };
 }

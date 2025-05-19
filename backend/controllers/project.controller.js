@@ -78,6 +78,29 @@ export const updateProject = async (req, res) => {
   }
 };
 
+export const checkProjectBookings = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Invalid project ID" });
+  }
+  try {
+    const bookingsUsingProject = await Booking.find({ projectID: id });
+    res.status(200).json({
+      success: true,
+      count: bookingsUsingProject.length,
+      bookings: bookingsUsingProject.map((b) => ({
+        bookingID: b.bookingID,
+        startTime: b.startTime,
+        endTime: b.endTime,
+      })),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const deleteProject = async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -89,19 +112,16 @@ export const deleteProject = async (req, res) => {
     const bookingsUsingProject = await Booking.find({ projectID: id });
 
     if (bookingsUsingProject.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Kan ikke slette projektet, da det bruges i eksisterende bookinger",
-        count: bookingsUsingProject.length,
-        bookings: bookingsUsingProject.map((b) => b.bookingID),
-      });
+      // Slet alle bookinger der bruger dette projekt
+      await Booking.deleteMany({ projectID: id });
     }
 
     await Project.findByIdAndDelete(id);
-    res
-      .status(200)
-      .json({ success: true, message: "Project deleted successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Project deleted successfully",
+      deletedBookings: bookingsUsingProject.length,
+    });
   } catch (error) {
     console.error("Error in deleting project: ", error.message);
     res.status(500).json({ success: false, message: "Server Error" });

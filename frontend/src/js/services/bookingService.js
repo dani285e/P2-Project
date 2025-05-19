@@ -850,16 +850,25 @@ const handleFormSubmit = async (e) => {
     return;
   }
 
-  // Proceed with booking creation or update
+  // Prepare booking data
   const bookingData = {
     bookingID,
     machineID,
-    projectID,
     startTime,
     endTime,
     employeeIDs: selectedEmployees.map((e) => e.id),
     notes: document.getElementById("notes").value.trim(),
   };
+
+  // Handle maintenance bookings differently
+  if (projectID === "maintenance") {
+    bookingData.maintenanceType = "general";
+    bookingData.projectID = null; // Set projectID to null for maintenance bookings
+  } else {
+    bookingData.projectID = projectID;
+    // Explicitly delete maintenanceType for project bookings
+    delete bookingData.maintenanceType;
+  }
 
   try {
     if (isEditing) {

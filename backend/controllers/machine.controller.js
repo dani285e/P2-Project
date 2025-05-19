@@ -54,6 +54,26 @@ export const updateMachine = async (req, res) => {
   }
 };
 
+// Tjek antal bookinger før sletning
+export const checkMachineBookings = async (req, res) => {
+  try {
+    const bookingsUsingMachine = await Booking.find({
+      machineID: req.params.id,
+    });
+    res.status(200).json({
+      success: true,
+      count: bookingsUsingMachine.length,
+      bookings: bookingsUsingMachine.map((b) => ({
+        bookingID: b.bookingID,
+        startTime: b.startTime,
+        endTime: b.endTime,
+      })),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Slet en maskine
 export const deleteMachine = async (req, res) => {
   try {
@@ -65,25 +85,24 @@ export const deleteMachine = async (req, res) => {
         .json({ success: false, message: "Maskine ikke fundet" });
     }
 
-    // Tjek om der er bookinger, der bruger denne maskine
+    // Find bookinger der bruger denne maskine
     const bookingsUsingMachine = await Booking.find({
       machineID: req.params.id,
     });
 
     if (bookingsUsingMachine.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Kan ikke slette maskinen, da den bruges i eksisterende bookinger",
-        count: bookingsUsingMachine.length,
-        bookings: bookingsUsingMachine.map((b) => b.bookingID),
-      });
+      // Slet alle bookinger der bruger denne maskine
+      await Booking.deleteMany({ machineID: req.params.id });
     }
 
-    // Hvis ingen bookinger bruger maskinen, kan vi slette den
+    // Slet maskinen
     await Machine.findByIdAndDelete(req.params.id);
 
-    res.status(200).json({ success: true, message: "Maskine slettet" });
+    res.status(200).json({
+      success: true,
+      message: "Maskine slettet",
+      deletedBookings: bookingsUsingMachine.length,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
