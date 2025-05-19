@@ -9,7 +9,6 @@ import cors from "cors";
 import { updateAllMachineStatuses } from "./controllers/machine.controller.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import { createError } from "./error/errorHandler.js"; // Import error handler
 
 dotenv.config();
 const app = express();
@@ -147,19 +146,24 @@ app.use((err, req, res, next) => {
     403: "Forbidden",
     404: "Not Found",
     409: "Conflict",
-    500: "Internal Server Error"
+    500: "Internal Server Error",
+    default: "Unknown Error"
   };
 
   const response = {
     status: statusCode,
-    error: statusText[statusCode] || "Unknown Error",
+    error: statusText[statusCode] || statusText.default,
     message: err.message || statusText[statusCode] || "An unexpected error occurred."
   };
 
-  console.error(`[${statusCode}] ${err.message}`);
+  if (process.env.NODE_ENV === 'development') {
+    console.error(err.stack);
+  } else {
+    console.error(`[${statusCode}] ${err.message}`);
+  }
+
   res.status(statusCode).json(response);
 });
-
 
 
 // Start server and connect to database
