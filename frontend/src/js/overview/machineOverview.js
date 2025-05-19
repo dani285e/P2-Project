@@ -145,41 +145,60 @@ async function saveMachine(e) {
 
 async function deleteMachine(id, name) {
   try {
-    // Tjek først antal bookinger
-    const checkResponse = await fetch(`/api/machines/${id}/check-bookings`);
-    const checkData = await checkResponse.json();
+    // First check for affected bookings
+    const checkResponse = await fetch(
+      `${API_URL}/machines/${id}/check-bookings`
+    );
+    const checkResult = await checkResponse.json();
 
-    if (!checkData.success) {
-      throw new Error(checkData.message);
+    if (!checkResult.success) {
+      throw new Error(
+        checkResult.message || "Der opstod en fejl ved tjek af bookinger"
+      );
     }
 
-    let confirmMessage = `Er du sikker på, at du vil slette maskinen "${name}"?`;
+    // If there are affected bookings, show a warning with booking details
+    if (checkResult.count > 0) {
+      const bookingDetails = checkResult.bookings
+        .map(
+          (booking) =>
+            `Booking ID: ${booking.bookingID}\n` +
+            `Tidspunkt: ${new Date(
+              booking.startTime
+            ).toLocaleString()} - ${new Date(booking.endTime).toLocaleString()}`
+        )
+        .join("\n\n");
 
-    if (checkData.count > 0) {
-      confirmMessage += `\n\nADVARSEL: Dette vil også slette ${checkData.count} tilknyttede booking(er):\n`;
-      checkData.bookings.forEach((booking) => {
-        const startDate = new Date(booking.startTime).toLocaleDateString(
-          "da-DK"
-        );
-        const endDate = new Date(booking.endTime).toLocaleDateString("da-DK");
-        confirmMessage += `\n- Booking ${booking.bookingID}: ${startDate} til ${endDate}`;
-      });
+      const confirmDelete = window.confirm(
+        `Advarsel: Følgende bookinger er knyttet til maskinen "${name}":\n\n` +
+          `${bookingDetails}\n\n` +
+          `Disse bookinger vil blive slettet sammen med maskinen.\n\n` +
+          `Er du sikker på, at du vil fortsætte?`
+      );
+
+      if (!confirmDelete) return;
+    } else {
+      // If no bookings are affected, show the normal confirmation
+      const confirmDelete = window.confirm(
+        `Er du sikker på, at du vil slette maskinen "${name}"?`
+      );
+
+      if (!confirmDelete) return;
     }
 
-    if (confirm(confirmMessage)) {
-      const response = await fetch(`${API_URL}/machines/${id}`, {
-        method: "DELETE",
-      });
+    // Proceed with deletion
+    const response = await fetch(`${API_URL}/machines/${id}`, {
+      method: "DELETE",
+    });
 
-      const result = await response.json();
+    const result = await response.json();
 
-      if (!result.success) {
-        throw new Error(result.message || "Der opstod en fejl");
-      }
-
-      loadMachines();
-      alert("Maskinen er blevet slettet");
+    if (!result.success) {
+      throw new Error(result.message || "Der opstod en fejl");
     }
+
+    loadMachines();
+    alert("Maskinen er blevet slettet");
   } catch (error) {
     console.error("Fejl ved sletning af maskine:", error);
     alert(`Der opstod en fejl ved sletning: ${error.message}`);

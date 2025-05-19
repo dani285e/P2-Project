@@ -182,14 +182,23 @@ if (typeof window.handleDeleteProject !== "function") {
       let confirmMessage = `Er du sikker på, at du vil slette projektet "${name}"?`;
 
       if (checkData.count > 0) {
-        confirmMessage += `\n\nADVARSEL: Dette vil også slette ${checkData.count} tilknyttede booking(er):\n`;
-        checkData.bookings.forEach((booking) => {
-          const startDate = new Date(booking.startTime).toLocaleDateString(
-            "da-DK"
-          );
-          const endDate = new Date(booking.endTime).toLocaleDateString("da-DK");
-          confirmMessage += `\n- Booking ${booking.bookingID}: ${startDate} til ${endDate}`;
-        });
+        const bookingDetails = checkData.bookings
+          .map(
+            (booking) =>
+              `Booking ID: ${booking.bookingID}\n` +
+              `Tidspunkt: ${new Date(
+                booking.startTime
+              ).toLocaleString()} - ${new Date(
+                booking.endTime
+              ).toLocaleString()}`
+          )
+          .join("\n\n");
+
+        confirmMessage =
+          `Advarsel: Følgende bookinger er knyttet til projektet "${name}":\n\n` +
+          `${bookingDetails}\n\n` +
+          `Disse bookinger vil blive slettet sammen med projektet.\n\n` +
+          `Er du sikker på, at du vil fortsætte?`;
       }
 
       if (confirm(confirmMessage)) {
