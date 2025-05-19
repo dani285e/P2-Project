@@ -9,7 +9,7 @@ import cors from "cors";
 import { updateAllMachineStatuses } from "./controllers/machine.controller.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import { createError } from "./errorHandler.js"; // Import error handler
+import { createError } from "./error/errorHandler.js"; // Import error handler
 
 dotenv.config();
 const app = express();
