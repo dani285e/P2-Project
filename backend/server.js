@@ -9,6 +9,8 @@ import cors from "cors";
 import { updateAllMachineStatuses } from "./controllers/machine.controller.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import createError from "http-errors";
+
 
 dotenv.config();
 const app = express();
