@@ -1,3 +1,4 @@
+// Get DOM elements for machine list and modal
 const machineList = document.getElementById("machine-list");
 const createMachineBtn = document.getElementById("createMachineBtn");
 const machineModal = new bootstrap.Modal(
@@ -8,20 +9,21 @@ const modalTitle = document.getElementById("modalTitle");
 const machineId = document.getElementById("machineId");
 const machineName = document.getElementById("machineName");
 
+// Add event listeners for machine management
 createMachineBtn.addEventListener("click", openCreateModal);
 machineForm.addEventListener("submit", saveMachine);
 document.addEventListener("DOMContentLoaded", loadMachines);
 
-const API_URL = "/api";
-
+// Global variables for managing machine list state
 let allMachines = [];
 let searchQuery = "";
 let sortField = "machineID";
 let sortDirection = "asc";
 
+// Load machines from the API
 async function loadMachines() {
   try {
-    const response = await fetch(`${API_URL}/machines`);
+    const response = await fetch(`/api/machines`);
     const result = await response.json();
 
     let machines = [];
@@ -33,13 +35,13 @@ async function loadMachines() {
       throw new Error("Uventet dataformat returneret fra API");
     }
 
-    // Sorter maskiner efter navn
+    // Sort machines by name
     machines.sort((a, b) => a.name.localeCompare(b.name, "da"));
 
     console.log("Indlæste maskiner:", machines);
     allMachines = machines;
 
-    // Opdater sorteringsindstillinger
+    // Update sorting settings
     sortField = "name";
     sortDirection = "asc";
     if (document.getElementById("sort-field")) {
@@ -54,6 +56,7 @@ async function loadMachines() {
   }
 }
 
+// Render the machine list in the table
 function renderMachineList(machines) {
   if (machines.length === 0) {
     machineList.innerHTML =
@@ -99,6 +102,7 @@ function renderMachineList(machines) {
   machineList.innerHTML = html;
 }
 
+// Open modal for creating a new machine
 function openCreateModal() {
   modalTitle.textContent = "Opret Ny Maskine";
   machineId.value = "";
@@ -106,6 +110,7 @@ function openCreateModal() {
   machineModal.show();
 }
 
+// Open modal for editing an existing machine
 function editMachine(id, name) {
   modalTitle.textContent = "Rediger Maskine";
   machineId.value = id;
@@ -113,6 +118,7 @@ function editMachine(id, name) {
   machineModal.show();
 }
 
+// Save machine data (create new or update existing)
 async function saveMachine(e) {
   e.preventDefault();
 
@@ -126,7 +132,7 @@ async function saveMachine(e) {
     let response;
 
     if (isEditing) {
-      response = await fetch(`${API_URL}/machines/${machineId.value}`, {
+      response = await fetch(`/api/machines/${machineId.value}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -134,7 +140,7 @@ async function saveMachine(e) {
         body: JSON.stringify(machineData),
       });
     } else {
-      response = await fetch(`${API_URL}/machines`, {
+      response = await fetch(`/api/machines`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -162,12 +168,11 @@ async function saveMachine(e) {
   }
 }
 
+// Delete a machine with booking check
 async function deleteMachine(id, name) {
   try {
     // First check for affected bookings
-    const checkResponse = await fetch(
-      `${API_URL}/machines/${id}/check-bookings`
-    );
+    const checkResponse = await fetch(`/api/machines/${id}/check-bookings`);
     const checkResult = await checkResponse.json();
 
     if (!checkResult.success) {
@@ -206,7 +211,7 @@ async function deleteMachine(id, name) {
     }
 
     // Proceed with deletion
-    const response = await fetch(`${API_URL}/machines/${id}`, {
+    const response = await fetch(`/api/machines/${id}`, {
       method: "DELETE",
     });
 
@@ -224,6 +229,7 @@ async function deleteMachine(id, name) {
   }
 }
 
+// Update sort button icon based on current sort direction
 function updateSortButtonText() {
   const sortIcon = document.getElementById("sort-icon");
   if (sortDirection === "asc") {
@@ -233,6 +239,7 @@ function updateSortButtonText() {
   }
 }
 
+// Filter and sort machines based on current search and sort settings
 function filterAndSortMachines() {
   let filteredMachines = [...allMachines];
   if (searchQuery) {
@@ -255,18 +262,19 @@ function filterAndSortMachines() {
   renderMachineList(filteredMachines);
 }
 
+// Initialize the page when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("search-input");
   const searchButton = document.getElementById("search-button");
   const sortFieldSelect = document.getElementById("sort-field");
   const sortDirectionButton = document.getElementById("sort-direction");
 
-  // Lyt efter custom event når maskinernes rækkefølge ændres
+  // Listen for custom event when machine order is updated
   document.addEventListener("machineOrderUpdated", () => {
     loadMachines();
   });
 
-  // Only add search listeners if search elements exist
+  // Set up search functionality if elements exist
   if (searchInput && searchButton) {
     searchInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
@@ -280,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Only add sort listeners if sort elements exist
+  // Set up sorting functionality if elements exist
   if (sortFieldSelect && sortDirectionButton) {
     sortFieldSelect.addEventListener("change", () => {
       sortField = sortFieldSelect.value;
@@ -296,5 +304,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// Make functions available globally
 window.editMachine = editMachine;
 window.deleteMachine = deleteMachine;

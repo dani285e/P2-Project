@@ -1,13 +1,17 @@
+// Import the employee creation service
 import { createEmployee } from "../services/employeeService.js";
 
+// Array to store employee skills
 let skills = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Get DOM elements
   const form = document.getElementById("create-employee-form");
   const skillsList = document.getElementById("skills-list");
   const skillInput = document.getElementById("skill-input");
   const addSkillButton = document.getElementById("add-skill");
 
+  // Function to render the skills list with delete functionality
   function renderSkills() {
     skillsList.innerHTML = "";
 
@@ -17,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // Create and append skill badges with delete buttons
     skills.forEach((skill, index) => {
       const skillItem = document.createElement("div");
       skillItem.classList.add(
@@ -31,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
       skillsList.appendChild(skillItem);
     });
 
+    // Add click event listeners to delete buttons
     document.querySelectorAll("[data-index]").forEach((button) => {
       button.addEventListener("click", () => {
         const index = parseInt(button.dataset.index, 10);
@@ -42,6 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderSkills();
 
+  // Function to add a new skill to the list
   function addSkill() {
     const skill = skillInput.value.trim();
 
@@ -56,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Event listeners for adding skills
   addSkillButton.addEventListener("click", addSkill);
 
   skillInput.addEventListener("keypress", (e) => {
@@ -65,13 +73,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Form submission handler
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // Clear previous error messages
     document.querySelectorAll(".text-danger").forEach((el) => {
       el.textContent = "";
     });
 
+    // Get form values
     const employeeNumber = document
       .getElementById("employeeNumber")
       .value.trim();
@@ -79,6 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let isValid = true;
 
+    // Validate required fields
     if (!employeeNumber) {
       document.getElementById("employeeNumber-error").textContent =
         "Medarbejdernummer er påkrævet.";
@@ -92,6 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!isValid) return;
 
+    // Create employee object
     const employee = {
       employeeNumber,
       name,
@@ -99,6 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
+      // Submit employee data to the server
       await createEmployee(employee);
       alert("Medarbejder oprettet succesfuldt!");
       form.reset();

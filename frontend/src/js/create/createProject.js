@@ -1,5 +1,6 @@
 import { createProject } from "../overview/projectOverview.js";
 
+// Toggle visibility of date input fields based on checkbox state
 function toggleDateInput(checkboxId, dateContainerId) {
   const checkbox = document.getElementById(checkboxId);
   const dateContainer = document.getElementById(dateContainerId);
@@ -11,6 +12,7 @@ function toggleDateInput(checkboxId, dateContainerId) {
   }
 }
 
+// Set up event listeners for all inspection checkboxes
 function setupInspectionCheckboxes() {
   const inspectionCheckboxes = document.querySelectorAll(
     ".inspection-checkbox"
@@ -27,11 +29,12 @@ function setupInspectionCheckboxes() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Get DOM elements
   const projectForm = document.getElementById("project-form");
-
   const classProjectCheckbox = document.getElementById("isClassProject");
   const inspectionSection = document.getElementById("inspection-section");
 
+  // Toggle inspection section visibility based on class project checkbox
   classProjectCheckbox.addEventListener("change", function () {
     if (this.checked) {
       inspectionSection.classList.remove("d-none");
@@ -40,13 +43,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Initialize inspection checkboxes
   setupInspectionCheckboxes();
 
+  // Handle form submission
   projectForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // Get form data
     const formData = new FormData(projectForm);
 
+    // Create project object with basic information
     const project = {
       projectID: formData.get("projectID"),
       name: formData.get("name"),
@@ -58,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       isClassProject: formData.get("isClassProject") === "on",
     };
 
+    // Add inspection data if it's a class project
     if (project.isClassProject) {
       project.inspections = {
         firstInspection: {
@@ -84,6 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
+      // Submit project data to the server
       await createProject(project);
       alert("Projekt oprettet succesfuldt!");
       window.location.href = "/";

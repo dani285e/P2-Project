@@ -6,16 +6,19 @@ import {
 } from "../controllers/project.controller.js";
 import mongoose from "mongoose";
 
+// Mock dependencies for testing
 jest.mock("../models/project.model.js");
 jest.mock("../models/booking.model.js");
 jest.spyOn(mongoose.Types.ObjectId, "isValid").mockImplementation(() => true);
 
 describe("Project Tests", () => {
+  // Clear all mocks before each test to ensure clean state
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe("checkProjectBookings", () => {
+    // Test successful retrieval of bookings for a valid project
     test("should return bookings for valid project ID", async () => {
       const mockBookings = [
         {
@@ -49,6 +52,7 @@ describe("Project Tests", () => {
       });
     });
 
+    // Test handling of invalid project ID
     test("should handle invalid project ID", async () => {
       mongoose.Types.ObjectId.isValid.mockReturnValueOnce(false);
 
@@ -69,6 +73,7 @@ describe("Project Tests", () => {
   });
 
   describe("deleteProject", () => {
+    // Test successful deletion of project and its associated bookings
     test("should delete project and associated bookings", async () => {
       const mockBookings = [{ bookingID: "B001" }, { bookingID: "B002" }];
 
@@ -94,6 +99,7 @@ describe("Project Tests", () => {
       });
     });
 
+    // Test handling of invalid project ID during deletion
     test("should handle invalid project ID", async () => {
       mongoose.Types.ObjectId.isValid.mockReturnValueOnce(false);
 

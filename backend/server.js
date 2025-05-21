@@ -11,7 +11,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import createError from "http-errors";
 
-
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -29,11 +28,7 @@ app.use("/api/employees", employeeRoutes);
 app.use("/api/machines", machineRoutes);
 app.use("/api/bookings", bookingRoutes);
 
-// Statiske filer
-const staticPath = path.join(__dirname, "../frontend/dist");
-app.use(express.static(staticPath));
-
-// Tilføj source-mappen som statisk for at kunne hente JS-moduler
+// Add source folder as static to be able to fetch JS modules
 app.use(
   express.static(path.join(__dirname, "../frontend/src"), {
     setHeaders: (res, path) => {
@@ -44,7 +39,7 @@ app.use(
   })
 );
 
-// Specifikke sider - brug Express til traditionel servering
+// Specific pages - use Express for traditional serving
 app.get("/employees", (req, res) => {
   res.sendFile(
     path.join(__dirname, "../frontend/src/pages/overview/employeeOverview.html")
@@ -131,13 +126,10 @@ app.get("/", (req, res) => {
   );
 });
 
-
-
 // 404 Handler (For all undefined routes)
 app.use((req, res, next) => {
   next(createError(404, `Resource not found: ${req.originalUrl}`));
 });
-
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
@@ -149,16 +141,17 @@ app.use((err, req, res, next) => {
     404: "Not Found",
     409: "Conflict",
     500: "Internal Server Error",
-    default: "Unknown Error"
+    default: "Unknown Error",
   };
 
   const response = {
     status: statusCode,
     error: statusText[statusCode] || statusText.default,
-    message: err.message || statusText[statusCode] || "An unexpected error occurred."
+    message:
+      err.message || statusText[statusCode] || "An unexpected error occurred.",
   };
 
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     console.error(err.stack);
   } else {
     console.error(`[${statusCode}] ${err.message}`);
@@ -167,16 +160,15 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json(response);
 });
 
-
 // Start server and connect to database
 app.listen(PORT, async () => {
   await connectDB();
 
-  // Opdater maskinstatus ved serverstart
+  // Update machine status at server start
   await updateAllMachineStatuses();
 
   console.log(`Server is running on port http://localhost:${PORT}`);
 
-  // Opdater maskinstatus hvert 5. minut (300000 ms)
-  setInterval(updateAllMachineStatuses, 300000);
+  // Update machine status every minute (60000 ms)
+  setInterval(updateAllMachineStatuses, 60000);
 });

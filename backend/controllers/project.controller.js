@@ -112,7 +112,7 @@ export const deleteProject = async (req, res) => {
     const bookingsUsingProject = await Booking.find({ projectID: id });
 
     if (bookingsUsingProject.length > 0) {
-      // Slet alle bookinger der bruger dette projekt
+      // Delete all bookings that use this project
       await Booking.deleteMany({ projectID: id });
     }
 

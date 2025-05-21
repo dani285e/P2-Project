@@ -11,25 +11,25 @@ import {
 
 const router = express.Router();
 
-// GET alle maskiner
+// GET all machines
 router.get("/", getMachines);
 
-// POST opret ny maskine
+// POST create new machine
 router.post("/", createMachine);
 
-// POST opdater maskine rækkefølge (skal være før /:id routes)
+// POST update machine order (must be before /:id routes)
 router.post("/order", updateMachineOrder);
 
-// GET en specifik maskine
+// GET a specific machine
 router.get("/:id", getMachineById);
 
-// PUT opdater maskine
+// PUT update machine
 router.put("/:id", updateMachine);
 
-// GET tjek bookinger før sletning
+// GET check bookings before deletion
 router.get("/:id/check-bookings", checkMachineBookings);
 
-// DELETE slet maskine
+// DELETE delete machine
 router.delete("/:id", deleteMachine);
 
 export default router;

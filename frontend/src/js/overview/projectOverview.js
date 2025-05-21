@@ -1,8 +1,10 @@
+// Global variables for project list management
 let allProjectsV2 = [];
 let sortFieldV2 = "projectID";
 let sortDirectionV2 = "asc";
 let searchQueryV2 = "";
 
+// Update sort button icon based on current sort direction
 function updateSortButtonTextV2() {
   const sortIcon = document.getElementById("sort-icon");
   if (sortDirectionV2 === "asc") {
@@ -12,6 +14,7 @@ function updateSortButtonTextV2() {
   }
 }
 
+// Filter and sort projects based on search query and sort settings
 function filterAndSortProjectsV2() {
   let filteredProjects = [...allProjectsV2];
   if (searchQueryV2) {
@@ -36,13 +39,14 @@ function filterAndSortProjectsV2() {
   window.renderProjectsV2(filteredProjects);
 }
 
+// Initialize page functionality when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("search-input");
   const searchButton = document.getElementById("search-button");
   const sortFieldSelect = document.getElementById("sort-field");
   const sortDirectionButton = document.getElementById("sort-direction");
 
-  // Only add search listeners if search elements exist
+  // Set up search functionality if elements exist
   if (searchInput && searchButton) {
     searchInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
@@ -56,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Only add sort listeners if sort elements exist
+  // Set up sorting functionality if elements exist
   if (sortFieldSelect && sortDirectionButton) {
     sortFieldSelect.addEventListener("change", () => {
       sortFieldV2 = sortFieldSelect.value;
@@ -72,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Render function v2 for the new table
+// Render projects in the table with responsive design
 export function renderProjectsV2(projects) {
   const tbody = document.getElementById("project-list-body-v2");
   if (!tbody) return;
@@ -122,7 +126,7 @@ export function renderProjectsV2(projects) {
     `;
   });
   tbody.innerHTML = html;
-  // Add event listeners for v2 buttons
+  // Add event listeners for action buttons
   tbody.querySelectorAll(".btn-view-v2").forEach((btn) => {
     btn.addEventListener("click", () => {
       if (typeof window.viewProject === "function") {
@@ -157,7 +161,7 @@ export function renderProjectsV2(projects) {
 }
 window.renderProjectsV2 = renderProjectsV2;
 
-// Add global functions for button actions if not already defined
+// Define global navigation functions if not already defined
 if (typeof window.viewProject !== "function") {
   window.viewProject = function (id) {
     window.location.href = `/viewProject?id=${id}`;
@@ -171,7 +175,7 @@ if (typeof window.editProject !== "function") {
 if (typeof window.handleDeleteProject !== "function") {
   window.handleDeleteProject = async function (id, name) {
     try {
-      // Tjek først antal bookinger
+      // Check for existing bookings before deletion
       const checkResponse = await fetch(`/api/projects/${id}/check-bookings`);
       const checkData = await checkResponse.json();
 
@@ -221,11 +225,10 @@ if (typeof window.handleDeleteProject !== "function") {
   };
 }
 
-// Fetch and render data for the v2 table on page load
-const API_URL = "/api"; // Use your actual API base path here
+// Load and render projects on page load
 async function loadProjectsV2() {
   try {
-    const response = await fetch(`${API_URL}/projects`);
+    const response = await fetch(`/api/projects`);
     const data = await response.json();
     if (data.success && Array.isArray(data.data)) {
       allProjectsV2 = data.data;
@@ -241,10 +244,10 @@ async function loadProjectsV2() {
 }
 loadProjectsV2();
 
-// API functions
+// API functions for project management
 export async function getProjectById(id) {
   try {
-    const response = await fetch(`${API_URL}/projects/${id}`);
+    const response = await fetch(`/api/projects/${id}`);
     const data = await response.json();
     if (data.success) {
       return data.data;
@@ -258,7 +261,7 @@ export async function getProjectById(id) {
 
 export async function deleteProject(id) {
   try {
-    const response = await fetch(`${API_URL}/projects/${id}`, {
+    const response = await fetch(`/api/projects/${id}`, {
       method: "DELETE",
     });
     const data = await response.json();
@@ -274,7 +277,7 @@ export async function deleteProject(id) {
 
 export async function updateProject(id, projectData) {
   try {
-    const response = await fetch(`${API_URL}/projects/${id}`, {
+    const response = await fetch(`/api/projects/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -294,7 +297,7 @@ export async function updateProject(id, projectData) {
 
 export async function createProject(projectData) {
   try {
-    const response = await fetch(`${API_URL}/projects`, {
+    const response = await fetch(`/api/projects`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Schema for bookinger
+// Schema for bookings
 const bookingSchema = new mongoose.Schema(
   {
     bookingID: { type: String, required: true, unique: true },
@@ -15,7 +15,7 @@ const bookingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
       required: function () {
-        return !this.maintenanceType; // Kun påkrævet hvis ikke vedligeholdelse
+        return !this.maintenanceType; // Only required if not maintenance
       },
     },
     maintenanceType: {
@@ -37,7 +37,7 @@ const bookingSchema = new mongoose.Schema(
     },
     notes: { type: String },
   },
-  { timestamps: true } // createdAt og updatedAt tilføjes automatisk
+  { timestamps: true } // createdAt and updatedAt are added automatically
 );
 
 const Booking = mongoose.model("Booking", bookingSchema);

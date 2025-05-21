@@ -1,8 +1,7 @@
-import {
-  getEmployees,
-  deleteEmployee,
-} from "../services/employeeService.js";
+// Import employee service functions for fetching and deleting employees
+import { getEmployees, deleteEmployee } from "../services/employeeService.js";
 
+// Navigation functions for viewing and editing employees
 window.viewEmployee = (id) => {
   window.location.href = `/viewEmployee?id=${id}`;
 };
@@ -10,11 +9,13 @@ window.editEmployee = (id) => {
   window.location.href = `/editEmployee?id=${id}`;
 };
 
+// Global variables for managing employee list state
 let allEmployees = [];
 let sortField = "employeeNumber";
 let sortDirection = "asc";
 let searchQuery = "";
 
+// Update sort button icon based on current sort direction
 function updateSortButtonText() {
   const sortIcon = document.getElementById("sort-icon");
   if (sortDirection === "asc") {
@@ -24,6 +25,7 @@ function updateSortButtonText() {
   }
 }
 
+// Render the employee list in the table
 function renderEmployeeList(employees) {
   const tbody = document.getElementById("employee-list-body");
   if (employees.length === 0) {
@@ -38,9 +40,17 @@ function renderEmployeeList(employees) {
         <td>${employee.name || "-"}</td>
         <td>
           <div class="btn-group" role="group">
-          <button class="btn btn-info btn-sm btn-view-v2 me-1" data-id="${employee._id}"><i class="bi bi-eye"></i> Vis</button>
-          <button class="btn btn-warning btn-sm btn-edit-v2 me-1" data-id="${employee._id}"><i class="bi bi-pencil"></i> Rediger</button>
-          <button class="btn btn-danger btn-sm btn-delete-v2" data-id="${employee._id}" data-name="${employee.name}"><i class="bi bi-trash"></i> Slet</button>
+          <button class="btn btn-info btn-sm btn-view-v2 me-1" data-id="${
+            employee._id
+          }"><i class="bi bi-eye"></i> Vis</button>
+          <button class="btn btn-warning btn-sm btn-edit-v2 me-1" data-id="${
+            employee._id
+          }"><i class="bi bi-pencil"></i> Rediger</button>
+          <button class="btn btn-danger btn-sm btn-delete-v2" data-id="${
+            employee._id
+          }" data-name="${
+      employee.name
+    }"><i class="bi bi-trash"></i> Slet</button>
           </div>
         </td>
       </tr>
@@ -49,8 +59,11 @@ function renderEmployeeList(employees) {
   tbody.innerHTML = html;
 }
 
+// Handle employee deletion with confirmation
 async function handleDeleteEmployee(id, name) {
-  const confirmDelete = window.confirm(`Er du sikker på, at du vil slette medarbejderen \"${name}\"?`);
+  const confirmDelete = window.confirm(
+    `Er du sikker på, at du vil slette medarbejderen \"${name}\"?`
+  );
   if (!confirmDelete) return;
   try {
     const success = await deleteEmployee(id);
@@ -66,23 +79,31 @@ async function handleDeleteEmployee(id, name) {
   }
 }
 
+// Filter and sort employees based on current search and sort settings
 function filterAndSortEmployees() {
   let filteredEmployees = [...allEmployees];
+  // Apply search filter if query exists
   if (searchQuery) {
     const query = searchQuery.toLowerCase();
     filteredEmployees = filteredEmployees.filter(
       (employee) =>
-        (employee.employeeNumber && employee.employeeNumber.toLowerCase().includes(query)) ||
+        (employee.employeeNumber &&
+          employee.employeeNumber.toLowerCase().includes(query)) ||
         (employee.name && employee.name.toLowerCase().includes(query))
     );
   }
+  // Sort employees based on current sort field and direction
   filteredEmployees.sort((a, b) => {
     const valA = (a[sortField] || "").toString();
     const valB = (b[sortField] || "").toString();
-    const comparison = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: "base" });
+    const comparison = valA.localeCompare(valB, undefined, {
+      numeric: true,
+      sensitivity: "base",
+    });
     return sortDirection === "asc" ? comparison : -comparison;
   });
   renderEmployeeList(filteredEmployees);
+  // Add event listeners to action buttons
   document.querySelectorAll(".btn-view-v2").forEach((btn) => {
     btn.addEventListener("click", () => window.viewEmployee(btn.dataset.id));
   });
@@ -90,14 +111,20 @@ function filterAndSortEmployees() {
     btn.addEventListener("click", () => window.editEmployee(btn.dataset.id));
   });
   document.querySelectorAll(".btn-delete-v2").forEach((btn) => {
-    btn.addEventListener("click", () => handleDeleteEmployee(btn.dataset.id, btn.dataset.name));
+    btn.addEventListener("click", () =>
+      handleDeleteEmployee(btn.dataset.id, btn.dataset.name)
+    );
   });
 }
 
+// Initialize the page when DOM is loaded
 document.addEventListener("DOMContentLoaded", async () => {
+  // Load initial employee data
   allEmployees = await getEmployees();
   filterAndSortEmployees();
   updateSortButtonText();
+
+  // Set up search functionality
   const searchInput = document.getElementById("search-input");
   const searchButton = document.getElementById("search-button");
   searchInput.addEventListener("keypress", (e) => {
@@ -110,6 +137,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     searchQuery = searchInput.value.trim();
     filterAndSortEmployees();
   });
+
+  // Set up sorting functionality
   const sortFieldSelect = document.getElementById("sort-field");
   const sortDirectionButton = document.getElementById("sort-direction");
   sortFieldSelect.addEventListener("change", () => {
@@ -126,7 +155,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Optional: API test function for debugging
-async function testAPI() {
+/*async function testAPI() {
   try {
     console.log("Testing API call to /api/employees");
     const response = await fetch("/api/employees");
@@ -151,4 +180,4 @@ async function testAPI() {
   }
 }
 
-window.addEventListener("load", testAPI);
+window.addEventListener("load", testAPI); */

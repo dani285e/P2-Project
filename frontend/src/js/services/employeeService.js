@@ -1,15 +1,13 @@
 // Employee Service
 // This file handles API calls for employee management
 
-import { API_URL } from "../utils/config.js";
-
 /**
  * Fetches all employees from the API
  * @returns {Promise<Array>} Array of employee objects
  */
 export async function getEmployees() {
   try {
-    const response = await fetch(`${API_URL}/employees`);
+    const response = await fetch(`/api/employees`);
     const data = await response.json();
 
     if (!data.success) {
@@ -30,7 +28,7 @@ export async function getEmployees() {
  */
 export async function getEmployeeById(id) {
   try {
-    const response = await fetch(`${API_URL}/employees/${id}`);
+    const response = await fetch(`/api/employees/${id}`);
     const data = await response.json();
 
     if (!data.success) {
@@ -51,7 +49,7 @@ export async function getEmployeeById(id) {
  */
 export async function createEmployee(employee) {
   try {
-    const response = await fetch(`${API_URL}/employees`, {
+    const response = await fetch(`/api/employees`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -80,7 +78,7 @@ export async function createEmployee(employee) {
  */
 export async function updateEmployee(id, employee) {
   try {
-    const response = await fetch(`${API_URL}/employees/${id}`, {
+    const response = await fetch(`/api/employees/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -112,7 +110,7 @@ export async function deleteEmployee(id) {
       return false;
     }
 
-    const response = await fetch(`${API_URL}/employees/${id}`, {
+    const response = await fetch(`/api/employees/${id}`, {
       method: "DELETE",
     });
 

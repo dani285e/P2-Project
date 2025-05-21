@@ -2,7 +2,7 @@
 // Handles booking overview page logic
 
 // --- API Test Function ---
-async function testAPI() {
+/*async function testAPI() {
   try {
     console.log("Testing API call to /api/bookings");
     const response = await fetch("/api/bookings");
@@ -30,7 +30,7 @@ async function testAPI() {
 }
 
 window.addEventListener("load", testAPI);
-
+*/
 // --- Week Navigation Logic ---
 document.addEventListener("DOMContentLoaded", () => {
   const prevWeekButton = document.getElementById("prevWeek");

@@ -1,11 +1,11 @@
 import Booking from "../models/booking.model.js";
 import Machine from "../models/machine.model.js";
 
-// Hjælpefunktion til at opdatere maskinstatus baseret på aktuelle bookinger
+// Helper function to update machine status based on current bookings
 const updateMachineStatus = async (machineId) => {
   const now = new Date();
 
-  // Find aktive bookinger for denne maskine som er i gang lige nu
+  // Find active bookings for this machine that are currently in progress
   const activeBookingsNow = await Booking.find({
     machineID: machineId,
     status: { $nin: ["Afsluttet", "Aflyst"] },
@@ -13,7 +13,7 @@ const updateMachineStatus = async (machineId) => {
     endTime: { $gt: now },
   });
 
-  // Opdater maskinstatus baseret på om der er aktive bookinger lige nu
+  // Update machine status based on whether there are active bookings right now
   const newStatus = activeBookingsNow.length > 0 ? "Optaget" : "Ledig";
   await Machine.findByIdAndUpdate(
     machineId,
@@ -24,39 +24,15 @@ const updateMachineStatus = async (machineId) => {
   return newStatus;
 };
 
-// Funktion til at opdatere status for alle maskiner
-export const updateAllMachineStatuses = async (req, res) => {
-  try {
-    // Hent alle maskiner
-    const machines = await Machine.find({});
-
-    // Opdater status for hver maskine
-    for (const machine of machines) {
-      await updateMachineStatus(machine._id);
-    }
-
-    // Hvis dette er et API-kald, returner succesbesked
-    if (res) {
-      res.status(200).json({ message: "Alle maskiners status er opdateret" });
-    }
-  } catch (error) {
-    console.error("Fejl ved opdatering af maskinstatusser:", error);
-    // Hvis dette er et API-kald, returner fejlbesked
-    if (res) {
-      res.status(500).json({ message: error.message });
-    }
-  }
-};
-
-// Hent alle bookinger med relaterede data
+// Get all bookings with related data
 export const getBookings = async (req, res) => {
   try {
-    // Brug .populate() med betinget path for projectID
+    // Use .populate() with conditional path for projectID
     const bookings = await Booking.find({})
       .populate("machineID")
       .populate({
         path: "projectID",
-        // Populate vil ignorere null/undefined værdier
+        // Populate will ignore null/undefined values
       })
       .populate("employeeIDs");
     res.status(200).json({ success: true, data: bookings });
@@ -65,14 +41,14 @@ export const getBookings = async (req, res) => {
   }
 };
 
-// Hent en enkelt booking efter ID
+// Get a single booking by ID
 export const getBookingById = async (req, res) => {
   try {
     const booking = await Booking.findOne({ bookingID: req.params.id })
       .populate("machineID")
       .populate({
         path: "projectID",
-        // Populate vil ignorere null/undefined værdier
+        // Populate will ignore null/undefined values
       })
       .populate("employeeIDs");
     if (!booking) {
@@ -86,20 +62,20 @@ export const getBookingById = async (req, res) => {
   }
 };
 
-// Opret en ny booking
+// Create a new booking
 export const createBooking = async (req, res) => {
   try {
     const booking = await Booking.create(req.body);
 
-    // Opdater maskinens status baseret på om bookingen er aktiv lige nu
+    // Update machine status based on whether the booking is active right now
     await updateMachineStatus(booking.machineID);
 
-    // Hent den nye booking med relaterede data
+    // Get the new booking with related data
     const populatedBooking = await Booking.findById(booking._id)
       .populate("machineID")
       .populate({
         path: "projectID",
-        // Populate vil ignorere null/undefined værdier
+        // Populate will ignore null/undefined values
       })
       .populate("employeeIDs");
     res.status(201).json({ success: true, data: populatedBooking });
@@ -108,7 +84,7 @@ export const createBooking = async (req, res) => {
   }
 };
 
-// Opdater en booking
+// Update a booking
 export const updateBooking = async (req, res) => {
   try {
     const oldBooking = await Booking.findOne({ bookingID: req.params.id });
@@ -126,21 +102,21 @@ export const updateBooking = async (req, res) => {
       .populate("machineID")
       .populate({
         path: "projectID",
-        // Populate vil ignorere null/undefined værdier
+        // Populate will ignore null/undefined values
       })
       .populate("employeeIDs");
 
-    // Hvis status er ændret til "Afsluttet" eller "Aflyst"
+    // If status is changed to "Completed" or "Cancelled"
     if (booking.status === "Afsluttet" || booking.status === "Aflyst") {
       await updateMachineStatus(booking.machineID);
     } else if (
       oldBooking.machineID.toString() !== booking.machineID._id.toString()
     ) {
-      // Hvis maskinen er ændret, opdater status for både den gamle og den nye maskine
+      // If the machine is changed, update status for both the old and new machine
       await updateMachineStatus(oldBooking.machineID);
       await updateMachineStatus(booking.machineID);
     } else {
-      // Ellers opdater kun den aktuelle maskines status
+      // Otherwise update only the current machine's status
       await updateMachineStatus(booking.machineID);
     }
 
@@ -150,7 +126,7 @@ export const updateBooking = async (req, res) => {
   }
 };
 
-// Slet en booking
+// Delete a booking
 export const deleteBooking = async (req, res) => {
   try {
     const booking = await Booking.findOne({ bookingID: req.params.id });
@@ -160,10 +136,10 @@ export const deleteBooking = async (req, res) => {
         .json({ success: false, message: "Booking ikke fundet" });
     }
 
-    // Slet bookingen
+    // Delete the booking
     await Booking.findOneAndDelete({ bookingID: req.params.id });
 
-    // Opdater maskinens status
+    // Update the machine status
     await updateMachineStatus(booking.machineID);
 
     res.status(200).json({ success: true, message: "Booking slettet" });

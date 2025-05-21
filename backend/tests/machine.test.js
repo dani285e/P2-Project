@@ -6,16 +6,19 @@ import {
 } from "../controllers/machine.controller.js";
 import mongoose from "mongoose";
 
+// Mock dependencies for testing
 jest.mock("../models/machine.model.js");
 jest.mock("../models/booking.model.js");
 jest.spyOn(mongoose.Types.ObjectId, "isValid").mockImplementation(() => true);
 
 describe("Machine Tests", () => {
+  // Clear all mocks before each test to ensure clean state
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe("checkMachineBookings", () => {
+    // Test successful retrieval of bookings for a valid machine
     test("should return bookings for valid machine ID", async () => {
       const mockBookings = [
         {
@@ -49,6 +52,7 @@ describe("Machine Tests", () => {
       });
     });
 
+    // Test handling of invalid machine ID
     test("should handle invalid machine ID", async () => {
       mongoose.Types.ObjectId.isValid.mockReturnValueOnce(false);
       Machine.findById.mockResolvedValue(null);
@@ -72,6 +76,7 @@ describe("Machine Tests", () => {
   });
 
   describe("deleteMachine", () => {
+    // Test successful deletion of machine and its associated bookings
     test("should delete machine and associated bookings", async () => {
       const mockBookings = [{ bookingID: "B001" }, { bookingID: "B002" }];
 
@@ -98,6 +103,7 @@ describe("Machine Tests", () => {
       });
     });
 
+    // Test handling of invalid machine ID during deletion
     test("should handle invalid machine ID", async () => {
       mongoose.Types.ObjectId.isValid.mockReturnValueOnce(false);
       Machine.findById.mockResolvedValue(null);

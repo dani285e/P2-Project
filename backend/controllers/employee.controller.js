@@ -2,7 +2,7 @@ import Employee from "../models/employee.model.js";
 import Booking from "../models/booking.model.js";
 import mongoose from "mongoose";
 
-// Hent alle medarbejdere
+// Get all employees
 export const getEmployees = async (req, res) => {
   try {
     const employees = await Employee.find({});
@@ -13,7 +13,7 @@ export const getEmployees = async (req, res) => {
   }
 };
 
-// Hent en enkelt medarbejder via ID
+// Get a single employee by ID
 export const getEmployeeById = async (req, res) => {
   const { id } = req.params;
 
@@ -39,7 +39,7 @@ export const getEmployeeById = async (req, res) => {
   }
 };
 
-// Opret ny medarbejder
+// Create new employee
 export const createEmployee = async (req, res) => {
   const employee = req.body;
   if (!employee.employeeNumber || !employee.name) {
@@ -50,7 +50,7 @@ export const createEmployee = async (req, res) => {
   }
 
   try {
-    // Tjek om medarbejdernummer allerede eksisterer
+    // Check if employee number already exists
     const existingEmployee = await Employee.findOne({
       employeeNumber: employee.employeeNumber,
     });
@@ -71,7 +71,7 @@ export const createEmployee = async (req, res) => {
   }
 };
 
-// Opdater en medarbejder
+// Update an employee
 export const updateEmployee = async (req, res) => {
   const { id } = req.params;
   const employee = req.body;
@@ -83,11 +83,11 @@ export const updateEmployee = async (req, res) => {
   }
 
   try {
-    // Hvis medarbejdernummeret ændres, tjek om det nye nummer allerede er i brug
+    // If employee number is changed, check if the new number is already in use
     if (employee.employeeNumber) {
       const existingEmployee = await Employee.findOne({
         employeeNumber: employee.employeeNumber,
-        _id: { $ne: id }, // Ekskluder den nuværende medarbejder
+        _id: { $ne: id }, // Exclude the current employee
       });
 
       if (existingEmployee) {
@@ -115,7 +115,7 @@ export const updateEmployee = async (req, res) => {
   }
 };
 
-// Slet en medarbejder
+// Delete an employee
 export const deleteEmployee = async (req, res) => {
   const { id } = req.params;
 
@@ -126,7 +126,7 @@ export const deleteEmployee = async (req, res) => {
   }
 
   try {
-    // Tjek først om medarbejderen eksisterer
+    // First check if the employee exists
     const employee = await Employee.findById(id);
     if (!employee) {
       return res
@@ -134,7 +134,7 @@ export const deleteEmployee = async (req, res) => {
         .json({ success: false, message: "Employee not found" });
     }
 
-    // Tjek om medarbejderen er tilknyttet bookinger
+    // Check if the employee is associated with any bookings
     const bookingsUsingEmployee = await Booking.find({
       employeeIDs: id,
     });
@@ -143,13 +143,13 @@ export const deleteEmployee = async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          "Kan ikke slette medarbejderen, da denne er tilknyttet eksisterende bookinger",
+          "Cannot delete the employee as they are associated with existing bookings",
         count: bookingsUsingEmployee.length,
         bookings: bookingsUsingEmployee.map((b) => b.bookingID),
       });
     }
 
-    // Hvis medarbejderen ikke er tilknyttet bookinger, kan vi slette den
+    // If the employee is not associated with any bookings, we can delete them
     await Employee.findByIdAndDelete(id);
 
     res

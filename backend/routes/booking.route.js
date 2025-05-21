@@ -5,27 +5,23 @@ import {
   createBooking,
   updateBooking,
   deleteBooking,
-  updateAllMachineStatuses,
 } from "../controllers/booking.controller.js";
 
 const router = express.Router();
 
-// GET alle bookinger
+// GET all bookings
 router.get("/", getBookings);
 
-// GET enkelt booking ved ID
+// GET single booking by ID
 router.get("/:id", getBookingById);
 
-// POST ny booking
+// POST new booking
 router.post("/", createBooking);
 
-// PUT opdater booking
+// PUT update booking
 router.put("/:id", updateBooking);
 
-// DELETE slet booking
+// DELETE delete booking
 router.delete("/:id", deleteBooking);
-
-// POST opdater alle maskiners status
-router.post("/update-machine-statuses", updateAllMachineStatuses);
 
 export default router;

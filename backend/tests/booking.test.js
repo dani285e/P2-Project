@@ -7,6 +7,7 @@ import {
 } from "../controllers/booking.controller.js";
 import mongoose from "mongoose";
 
+// Mock dependencies for testing
 jest.mock("../models/booking.model.js");
 jest.mock("../models/machine.model.js");
 
@@ -14,11 +15,13 @@ jest.mock("../models/machine.model.js");
 jest.spyOn(mongoose.Types.ObjectId, "isValid").mockImplementation(() => true);
 
 describe("Booking Tests", () => {
+  // Clear all mocks before each test to ensure clean state
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe("createBooking", () => {
+    // Test successful creation of a new booking and machine status update
     test("should create a new booking and update machine status", async () => {
       const mockBooking = {
         _id: "B001",
@@ -73,6 +76,7 @@ describe("Booking Tests", () => {
   });
 
   describe("updateBooking", () => {
+    // Test successful update of booking and machine status changes
     test("should update booking and handle machine status changes", async () => {
       const oldBooking = {
         _id: "B001",
@@ -130,6 +134,7 @@ describe("Booking Tests", () => {
   });
 
   describe("deleteBooking", () => {
+    // Test successful deletion of booking and machine status update
     test("should delete booking and update machine status", async () => {
       const mockBooking = {
         _id: "B001",

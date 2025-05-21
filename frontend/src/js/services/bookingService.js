@@ -1,14 +1,12 @@
 // Booking Service
-// Dette script håndterer bookingsfunktionalitet og API-kald til backend
+// This script handles booking functionality and API calls to the backend
 
-import { API_URL } from "../utils/config.js";
-
-// DOM-elementer
+// DOM elements
 const bookingTimeline = document.getElementById("bookingTimeline");
 const currentDateRangeSpan = document.getElementById("currentDateRange");
 const bookingAlert = document.getElementById("bookingAlert");
 
-// Tilstand
+// State management
 let machines = [];
 let projects = [];
 let employees = [];
@@ -20,7 +18,7 @@ let editingBookingId = null;
 let isOrderEditing = false;
 let machineOrder = {};
 
-// Formatter datoer
+// Format dates for display
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString("da-DK", {
     day: "numeric",
@@ -28,6 +26,7 @@ const formatDate = (date) => {
   });
 };
 
+// Format date and time for display
 const formatDateTime = (date) => {
   return new Date(date).toLocaleString("da-DK", {
     day: "numeric",
@@ -37,6 +36,7 @@ const formatDateTime = (date) => {
   });
 };
 
+// Format time only for display
 const formatTimeOnly = (date) => {
   return new Date(date).toLocaleTimeString("da-DK", {
     hour: "2-digit",
@@ -44,17 +44,17 @@ const formatTimeOnly = (date) => {
   });
 };
 
-// Indstil starten af ugen (søndag eller mandag)
+// Get the start of the week (Sunday or Monday)
 const getStartOfWeek = (date) => {
   const newDate = new Date(date);
-  const day = newDate.getDay(); // 0 for søndag, 1 for mandag, ...
-  const diff = newDate.getDate() - day + (day === 0 ? -6 : 1); // Juster til mandag (tilføj -6 hvis det er søndag)
+  const day = newDate.getDay(); // 0 for Sunday, 1 for Monday, ...
+  const diff = newDate.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday (add -6 if it's Sunday)
   newDate.setDate(diff);
   newDate.setHours(0, 0, 0, 0);
   return newDate;
 };
 
-// Hent 7 dage fra startdatoen
+// Get 7 days from start date
 const getDaysInWeek = (startDate) => {
   const days = [];
   const currentDate = new Date(startDate);
@@ -67,7 +67,7 @@ const getDaysInWeek = (startDate) => {
   return days;
 };
 
-// Opdater datointerval visning
+// Update date range display
 const updateDateRangeDisplay = () => {
   const startOfWeek = getStartOfWeek(currentStartDate);
   const endOfWeek = new Date(startOfWeek);
@@ -78,7 +78,7 @@ const updateDateRangeDisplay = () => {
   )}`;
 };
 
-// Naviger til forrige uge
+// Navigate to previous week
 const goToPrevWeek = () => {
   const startOfWeek = getStartOfWeek(currentStartDate);
   startOfWeek.setDate(startOfWeek.getDate() - 7);
@@ -87,7 +87,7 @@ const goToPrevWeek = () => {
   renderTimeline();
 };
 
-// Naviger til næste uge
+// Navigate to next week
 const goToNextWeek = () => {
   const startOfWeek = getStartOfWeek(currentStartDate);
   startOfWeek.setDate(startOfWeek.getDate() + 7);
@@ -96,63 +96,63 @@ const goToNextWeek = () => {
   renderTimeline();
 };
 
-// Naviger til denne uge
+// Navigate to current week
 const goToToday = () => {
   currentStartDate = new Date();
   updateDateRangeDisplay();
   renderTimeline();
 };
 
-// Hent alle maskiner fra API
+// Load all machines from API
 const loadMachines = async () => {
   try {
-    const response = await fetch(`${API_URL}/machines`);
+    const response = await fetch(`/api/machines`);
     const result = await response.json();
 
-    // Håndter forskellige response formater
+    // Handle different response formats
     if (result.success && Array.isArray(result.data)) {
       machines = result.data;
     } else if (Array.isArray(result)) {
       machines = result;
     } else {
-      console.error("Uventet dataformat fra maskine API:", result);
+      console.error("Unexpected data format from machine API:", result);
       machines = [];
     }
 
     return machines;
   } catch (error) {
-    console.error("Fejl ved hentning af maskiner:", error);
+    console.error("Error loading machines:", error);
     return [];
   }
 };
 
-// Hent alle projekter fra API
+// Load all projects from API
 const loadProjects = async () => {
   try {
-    const response = await fetch(`${API_URL}/projects`);
+    const response = await fetch(`/api/projects`);
     const data = await response.json();
     projects = data.data || data;
     return projects;
   } catch (error) {
-    console.error("Fejl ved hentning af projekter:", error);
+    console.error("Error loading projects:", error);
     return [];
   }
 };
 
-// Hent alle medarbejdere fra API
+// Load all employees from API
 const loadEmployees = async () => {
   try {
-    const response = await fetch(`${API_URL}/employees`);
+    const response = await fetch(`/api/employees`);
     const data = await response.json();
     employees = data.data || data;
     return employees;
   } catch (error) {
-    console.error("Fejl ved hentning af medarbejdere:", error);
+    console.error("Error loading employees:", error);
     return [];
   }
 };
 
-// Find ugyldige bookinger
+// Find invalid bookings
 const findInvalidBookings = (bookings) => {
   const invalidMachineBookings = bookings.filter(
     (booking) => !booking.machineID || !booking.machineID._id
@@ -161,9 +161,9 @@ const findInvalidBookings = (bookings) => {
   const invalidProjectBookings = bookings.filter(
     (booking) =>
       booking.machineID &&
-      booking.machineID._id && // Kun gyldig maskine
-      booking.maintenanceType !== "general" && // Ikke vedligeholdelse
-      (!booking.projectID || !booking.projectID._id) // Manglende projektID
+      booking.machineID._id && // Only valid machine
+      booking.maintenanceType !== "general" && // Not maintenance
+      (!booking.projectID || !booking.projectID._id) // Missing projectID
   );
 
   return {
@@ -173,7 +173,7 @@ const findInvalidBookings = (bookings) => {
   };
 };
 
-// Vis advarsel om ugyldige bookinger
+// Show warning for invalid bookings
 const showInvalidBookingsWarning = (
   invalidBookings,
   invalidMachineBookings,
@@ -213,7 +213,7 @@ const showInvalidBookingsWarning = (
   }
 };
 
-// Opsæt oprydningsknap
+// Setup cleanup button
 const setupCleanupButton = (invalidBookings) => {
   document
     .getElementById("cleanupButton")
@@ -231,7 +231,7 @@ const setupCleanupButton = (invalidBookings) => {
               deletedCount++;
             } catch (err) {
               console.error(
-                `Kunne ikke slette booking ${booking.bookingID}:`,
+                `Could not delete booking ${booking.bookingID}:`,
                 err
               );
             }
@@ -245,14 +245,14 @@ const setupCleanupButton = (invalidBookings) => {
     });
 };
 
-// Hovedfunktion til at hente bookinger
+// Main function to load bookings
 const loadBookings = async () => {
   try {
-    const response = await fetch(`${API_URL}/bookings`);
+    const response = await fetch(`/api/bookings`);
     const result = await response.json();
 
     if (!result.success) {
-      throw new Error(result.message || "Fejl ved hentning af bookinger");
+      throw new Error(result.message || "Error loading bookings");
     }
 
     const data = result.data;
@@ -261,10 +261,12 @@ const loadBookings = async () => {
 
     if (allInvalid.length > 0) {
       console.warn(
-        `Der blev fundet ${allInvalid.length} booking(er) med slettede maskiner eller projekter.`
+        `Found ${allInvalid.length} booking(s) with deleted machines or projects.`
       );
-      console.warn("Disse bookinger kan ikke vises korrekt i tidslinjen.");
-      console.warn("Du bør slette disse bookinger for at undgå fejl.");
+      console.warn(
+        "These bookings cannot be displayed correctly in the timeline."
+      );
+      console.warn("You should delete these bookings to avoid errors.");
 
       showInvalidBookingsWarning(
         allInvalid,
@@ -276,22 +278,22 @@ const loadBookings = async () => {
     bookings = data;
     return data;
   } catch (error) {
-    console.error("Fejl ved hentning af bookinger:", error);
+    console.error("Error loading bookings:", error);
     return [];
   }
 };
 
-// Opret booking
+// Create booking
 const createBooking = async (bookingData) => {
   try {
-    // Konverter datoer til UTC
+    // Convert dates to UTC
     const bookingDataUTC = {
       ...bookingData,
       startTime: new Date(bookingData.startTime).toISOString(),
       endTime: new Date(bookingData.endTime).toISOString(),
     };
 
-    const response = await fetch(`${API_URL}/bookings`, {
+    const response = await fetch(`/api/bookings`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -302,27 +304,27 @@ const createBooking = async (bookingData) => {
     const result = await response.json();
 
     if (!result.success) {
-      throw new Error(result.message || "Fejl ved oprettelse af booking");
+      throw new Error(result.message || "Error creating booking");
     }
 
     return result.data;
   } catch (error) {
-    console.error("Fejl ved oprettelse af booking:", error);
+    console.error("Error creating booking:", error);
     throw error;
   }
 };
 
-// Opdater booking
+// Update booking
 const updateBooking = async (id, bookingData) => {
   try {
-    // Konverter datoer til UTC
+    // Convert dates to UTC
     const bookingDataUTC = {
       ...bookingData,
       startTime: new Date(bookingData.startTime).toISOString(),
       endTime: new Date(bookingData.endTime).toISOString(),
     };
 
-    const response = await fetch(`${API_URL}/bookings/${id}`, {
+    const response = await fetch(`/api/bookings/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -333,37 +335,37 @@ const updateBooking = async (id, bookingData) => {
     const result = await response.json();
 
     if (!result.success) {
-      throw new Error(result.message || "Fejl ved opdatering af booking");
+      throw new Error(result.message || "Error updating booking");
     }
 
     return result.data;
   } catch (error) {
-    console.error("Fejl ved opdatering af booking:", error);
+    console.error("Error updating booking:", error);
     throw error;
   }
 };
 
-// Slet booking
+// Delete booking
 const deleteBooking = async (id) => {
   try {
-    const response = await fetch(`${API_URL}/bookings/${id}`, {
+    const response = await fetch(`/api/bookings/${id}`, {
       method: "DELETE",
     });
 
     const result = await response.json();
 
     if (!result.success) {
-      throw new Error(result.message || "Fejl ved sletning af booking");
+      throw new Error(result.message || "Error deleting booking");
     }
 
     return true;
   } catch (error) {
-    console.error("Fejl ved sletning af booking:", error);
+    console.error("Error deleting booking:", error);
     throw error;
   }
 };
 
-// Luk modal
+// Close modal
 const closeBookingModal = () => {
   const bookingModalElement = document.getElementById("bookingModal");
   const bookingForm = document.getElementById("bookingForm");
@@ -388,7 +390,7 @@ const closeBookingModal = () => {
   }
 };
 
-// Åbn modal for oprettelse af booking
+// Open modal for creating booking
 const openCreateBookingModal = () => {
   const modalTitle = document.getElementById("modalTitle");
   const deleteBtn = document.getElementById("deleteBtn");
@@ -420,7 +422,7 @@ const openCreateBookingModal = () => {
   bookingModal.show();
 };
 
-// Åbn modal for redigering af booking
+// Open modal for editing booking
 const openEditBookingModal = (booking) => {
   const modalTitle = document.getElementById("modalTitle");
   const deleteBtn = document.getElementById("deleteBtn");
@@ -467,7 +469,7 @@ const openEditBookingModal = (booking) => {
   bookingModal.show();
 };
 
-// Formater dato til input
+// Format date for input fields
 const formatDateTimeForInput = (date) => {
   const d = new Date(date);
   const year = d.getFullYear();
@@ -479,7 +481,7 @@ const formatDateTimeForInput = (date) => {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
-// Vis valgte medarbejdere
+// Display selected employees
 const renderSelectedEmployees = () => {
   const container = document.getElementById("selectedEmployees");
   container.innerHTML = "";
@@ -499,7 +501,7 @@ const renderSelectedEmployees = () => {
     container.appendChild(item);
   });
 
-  // Tilføj event listeners til fjern-knapper
+  // Add event listeners to remove buttons
   document.querySelectorAll(".remove-item").forEach((button) => {
     button.addEventListener("click", () => {
       const index = parseInt(button.dataset.index);
@@ -509,7 +511,7 @@ const renderSelectedEmployees = () => {
   });
 };
 
-// Fyld maskinvælger
+// Populate machine selector
 const populateMachineSelect = () => {
   const select = document.getElementById("machine");
   select.innerHTML = '<option value="">Vælg en maskine</option>';
@@ -522,18 +524,18 @@ const populateMachineSelect = () => {
   });
 };
 
-// Fyld projektvælger
+// Populate project selector
 const populateProjectSelect = () => {
   const select = document.getElementById("project");
   select.innerHTML = '<option value="">Vælg et projekt</option>';
 
-  // Tilføj vedligeholdelse som særlig mulighed
+  // Add maintenance as special option
   const maintenanceOption = document.createElement("option");
   maintenanceOption.value = "maintenance";
   maintenanceOption.textContent = "Vedligeholdelse";
   select.appendChild(maintenanceOption);
 
-  // Tilføj adskiller
+  // Add separator
   const separator = document.createElement("option");
   separator.disabled = true;
   separator.textContent = "──────────";
@@ -547,7 +549,7 @@ const populateProjectSelect = () => {
   });
 };
 
-// Fyld medarbejdervælger
+// Populate employee selector
 const populateEmployeeSelect = () => {
   const select = document.getElementById("employees");
   select.innerHTML = '<option value="">Vælg medarbejdere</option>';
@@ -559,7 +561,7 @@ const populateEmployeeSelect = () => {
     select.appendChild(option);
   });
 
-  // Tilføj change event listener
+  // Add change event listener
   select.addEventListener("change", () => {
     const selectedId = select.value;
     if (!selectedId) return;
@@ -574,17 +576,17 @@ const populateEmployeeSelect = () => {
         name: selectedEmployee.name,
       });
       renderSelectedEmployees();
-      select.value = ""; // Nulstil vælger
+      select.value = ""; // Reset selector
     }
   });
 };
 
-// Tjek om to datointervaller overlapper
+// Check if two date ranges overlap
 const doDateRangesOverlap = (start1, end1, start2, end2) => {
   return start1 < end2 && start2 < end1;
 };
 
-// Check booking konflikter for en maskine
+// Check booking conflicts for a machine
 const checkBookingConflicts = (
   machineId,
   startTime,
@@ -609,15 +611,15 @@ const checkBookingConflicts = (
   return conflictingBookings.length > 0 ? conflictingBookings : false;
 };
 
-// Hjælpefunktion til at generere pastelfarver baseret på et seed (maskin-ID)
+// Helper function to generate pastel colors based on a seed (machine ID)
 const generatePastelColor = (seed) => {
-  // Generér en hash-værdi fra seed-strengen
+  // Generate a hash value from the seed string
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
     hash = seed.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  // Konvertér til en pastelfarve (højere lysstyrke)
+  // Convert to a pastel color (higher lightness)
   const hue = Math.abs(hash % 360);
   const saturation = 70 + Math.abs((hash >> 8) % 30); // 70-100%
   const lightness = 75 + Math.abs((hash >> 16) % 15); // 75-90%
@@ -625,7 +627,7 @@ const generatePastelColor = (seed) => {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 };
 
-// Render timelinen for den aktuelle uge
+// Render timeline for current week
 const renderTimeline = () => {
   if (!machines.length) {
     bookingTimeline.innerHTML =
@@ -633,24 +635,24 @@ const renderTimeline = () => {
     return;
   }
 
-  // Filtrer ugyldige bookinger (hvor machineID eller projectID ikke længere eksisterer)
+  // Filter invalid bookings (where machineID or projectID no longer exists)
   const validBookings = bookings.filter(
     (booking) =>
       booking.machineID &&
       booking.machineID._id &&
-      // For bookinger med maintenanceType er projektID ikke påkrævet
+      // For bookings with maintenanceType, projectID is not required
       (booking.maintenanceType === "general" ||
         (booking.projectID && booking.projectID._id))
   );
 
-  // Hvis vi opdagede ugyldige bookinger, vis en advarsel
+  // If we detected invalid bookings, show a warning
   if (validBookings.length < bookings.length) {
     console.warn(
-      "Der findes bookinger med slettede maskiner eller projekter i systemet. Disse vises ikke."
+      "There are bookings with deleted machines or projects in the system. These are not displayed."
     );
   }
 
-  // Erstat den oprindelige bookings med kun gyldige bookinger i renderingen
+  // Replace original bookings with only valid bookings in rendering
   const bookingsToRender = validBookings;
 
   const startOfWeek = getStartOfWeek(currentStartDate);
@@ -663,7 +665,7 @@ const renderTimeline = () => {
           <div class="timeline-cell machine-name">Maskine</div>
   `;
 
-  // Tilføj datooverskrifter
+  // Add date headers
   daysInWeek.forEach((day) => {
     html += `<div class="timeline-cell">${formatDate(day)}</div>`;
   });
@@ -673,9 +675,9 @@ const renderTimeline = () => {
       </div>
   `;
 
-  // Tilføj rækker for hver maskine
+  // Add rows for each machine
   machines.forEach((machine) => {
-    // Generér en unik pastelfarve baseret på maskinens ID
+    // Generate a unique pastel color based on machine ID
     const rowColor = generatePastelColor(machine._id);
 
     html += `
@@ -683,13 +685,13 @@ const renderTimeline = () => {
         <div class="timeline-cell machine-name">${machine.name}</div>
     `;
 
-    // Tilføj celler for hver dag
+    // Add cells for each day
     daysInWeek.forEach((day) => {
       const dayStart = new Date(day);
       const dayEnd = new Date(day);
       dayEnd.setHours(23, 59, 59, 999);
 
-      // Find bookinger for denne maskine på denne dag
+      // Find bookings for this machine on this day
       const dayBookings = bookingsToRender.filter(
         (booking) =>
           booking.machineID._id === machine._id &&
@@ -704,7 +706,7 @@ const renderTimeline = () => {
       let cellContent = "";
 
       if (dayBookings.length > 0) {
-        // Sorter bookinger efter starttidspunkt
+        // Sort bookings by start time
         dayBookings.sort(
           (a, b) => new Date(a.startTime) - new Date(b.startTime)
         );
@@ -712,7 +714,7 @@ const renderTimeline = () => {
         dayBookings.forEach((booking) => {
           let bookingClass = "booking";
 
-          // Kontroller om det er en vedligeholdelsesreservation
+          // Check if it's a maintenance reservation
           const isMaintenance = booking.maintenanceType === "general";
 
           if (isMaintenance) {
@@ -727,16 +729,16 @@ const renderTimeline = () => {
             projectName = booking.projectID.name;
           }
 
-          // Start- og sluttidspunkter
+          // Start and end times
           const bookingStart = new Date(booking.startTime);
           const bookingEnd = new Date(booking.endTime);
 
-          // Hvis bookingen strækker sig over flere dage, vis kun den relevante del
+          // If booking spans multiple days, show only the relevant part
           const displayStart =
             bookingStart < dayStart ? dayStart : bookingStart;
           const displayEnd = bookingEnd > dayEnd ? dayEnd : bookingEnd;
 
-          // Bestem baggrundsfarve - brug stribet mønster for vedligeholdelse
+          // Determine background color - use striped pattern for maintenance
           let bgColor = rowColor;
           let borderColor = rowColor
             .replace("hsl", "hsla")
@@ -793,7 +795,7 @@ const renderTimeline = () => {
 
   bookingTimeline.innerHTML = html;
 
-  // Tilføj event listeners til booking-elementer
+  // Add event listeners to booking elements
   document.querySelectorAll(".booking").forEach((bookingEl) => {
     bookingEl.addEventListener("click", () => {
       const bookingId = bookingEl.dataset.bookingId;
@@ -805,7 +807,7 @@ const renderTimeline = () => {
   });
 };
 
-// Håndter formular indsendelse
+// Handle form submission
 const handleFormSubmit = async (e) => {
   e.preventDefault();
 
@@ -895,12 +897,12 @@ const showAlert = (message, type = "danger") => {
   bookingAlert.style.display = "block";
 };
 
-// Opdater alle data og genrender timeline
+// Update all data and re-render timeline
 const refreshData = async () => {
   bookingTimeline.innerHTML = "<p class='loading'>Indlæser bookinger...</p>";
 
   try {
-    // Hent data parallelt
+    // Load data in parallel
     await Promise.all([
       loadMachines(),
       loadProjects(),
@@ -914,7 +916,7 @@ const refreshData = async () => {
   }
 };
 
-// Håndter sletning af booking
+// Handle booking deletion
 const handleDeleteBooking = async () => {
   try {
     if (!editingBookingId) {
@@ -932,7 +934,7 @@ const handleDeleteBooking = async () => {
 
     await deleteBooking(editingBookingId);
 
-    // Opdater data og luk modal
+    // Update data and close modal
     closeBookingModal();
     await refreshData();
     renderTimeline();
@@ -944,7 +946,7 @@ const handleDeleteBooking = async () => {
   }
 };
 
-// Tilføj event listeners for rækkefølge redigering
+// Add event listeners for order editing
 const setupOrderEditing = () => {
   const editOrderBtn = document.getElementById("editOrderBtn");
   const saveOrderBtn = document.getElementById("saveOrderBtn");
@@ -977,7 +979,7 @@ const setupOrderEditing = () => {
   saveOrderBtn.addEventListener("click", saveMachineOrder);
 };
 
-// Drag and drop håndteringsfunktioner
+// Drag and drop handling functions
 const handleDragStart = (e) => {
   e.target.classList.add("dragging");
   e.dataTransfer.setData("text/plain", e.target.dataset.machineId);
@@ -1005,8 +1007,8 @@ const handleDragOver = (e) => {
   if (closestRow) {
     closestRow.parentNode.insertBefore(draggingRow, closestRow);
   } else {
-    // Hvis ingen række er fundet (vi er under den sidste række)
-    // Indsæt den trækkede række efter den sidste række
+    // If no row is found (we're below the last row)
+    // Insert the dragged row after the last row
     const lastRow = rows[rows.length - 1];
     if (lastRow) {
       lastRow.parentNode.insertBefore(draggingRow, lastRow.nextSibling);
@@ -1019,7 +1021,7 @@ const handleDrop = (e) => {
   const draggedId = e.dataTransfer.getData("text/plain");
   const rows = document.querySelectorAll(".timeline-row");
 
-  // Opdater machineOrder objekt
+  // Update machineOrder object
   rows.forEach((row, index) => {
     machineOrder[row.dataset.machineId] = index;
   });
@@ -1029,7 +1031,7 @@ const handleDragEnd = (e) => {
   e.target.classList.remove("dragging");
 };
 
-// Gem maskine rækkefølge
+// Save machine order
 const saveMachineOrder = async () => {
   try {
     const rows = document.querySelectorAll(".timeline-row");
@@ -1045,9 +1047,9 @@ const saveMachineOrder = async () => {
       }
     });
 
-    console.log("Sender rækkefølge opdatering:", machineOrders);
+    console.log("Sending order update:", machineOrders);
 
-    const response = await fetch(`${API_URL}/machines/order`, {
+    const response = await fetch(`/api/machines/order`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ machineOrders }),
@@ -1056,13 +1058,13 @@ const saveMachineOrder = async () => {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "Fejl ved gem af rækkefølge");
+      throw new Error(result.message || "Error saving order");
     }
 
     if (result.success) {
-      showAlert("Rækkefølge gemt", "success");
+      showAlert("Order saved", "success");
 
-      // Deaktiver redigerings-tilstand
+      // Disable editing mode
       isOrderEditing = false;
       const editOrderBtn = document.getElementById("editOrderBtn");
       const saveOrderBtn = document.getElementById("saveOrderBtn");
@@ -1070,7 +1072,7 @@ const saveMachineOrder = async () => {
       editOrderBtn.classList.remove("active");
       saveOrderBtn.classList.remove("visible");
 
-      // Fjern drag-and-drop funktionalitet
+      // Remove drag-and-drop functionality
       const rows = document.querySelectorAll(".timeline-row");
       rows.forEach((row) => {
         row.classList.remove("editing");
@@ -1081,13 +1083,13 @@ const saveMachineOrder = async () => {
         row.removeEventListener("dragend", handleDragEnd);
       });
 
-      // Opdater visningen
+      // Update view
       await refreshData();
 
-      // Udløs event for at opdatere maskineoversigten
+      // Trigger event to update machine overview
       document.dispatchEvent(new Event("machineOrderUpdated"));
     } else {
-      throw new Error(result.message || "Ukendt fejl ved gem af rækkefølge");
+      throw new Error(result.message || "Unknown error saving order");
     }
   } catch (error) {
     console.error("Fejl ved gem af rækkefølge:", error);
@@ -1095,20 +1097,20 @@ const saveMachineOrder = async () => {
   }
 };
 
-// Initialiser applikationen
+// Initialize application
 const initApp = async () => {
-  // Indlæs data
+  // Load data
   await refreshData();
 
-  // Opdater dato display
+  // Update date display
   updateDateRangeDisplay();
 
-  // Udfyld select-bokse
+  // Populate select boxes
   populateMachineSelect();
   populateProjectSelect();
   populateEmployeeSelect();
 
-  // DOM-elementer
+  // DOM elements
   const createBookingBtn = document.getElementById("createBookingBtn");
   const closeModal = document.getElementById("closeModal");
   const cancelBtn = document.getElementById("cancelBtn");
@@ -1140,13 +1142,12 @@ const initApp = async () => {
 
   // Add event listeners if elements exist
   if (createBookingBtn) {
-    console.log("Attaching event listener to 'Opret Ny Booking' button.");
     createBookingBtn.addEventListener("click", () => {
-      console.log("'Opret Ny Booking' button clicked.");
+      console.log("'Create New Booking' button clicked.");
       openCreateBookingModal();
     });
   } else {
-    console.error("'Opret Ny Booking' button not found in the DOM.");
+    console.error("'Create New Booking' button not found in the DOM.");
   }
   if (closeModal) closeModal.addEventListener("click", closeBookingModal);
   if (cancelBtn) cancelBtn.addEventListener("click", closeBookingModal);
@@ -1170,7 +1171,7 @@ const initApp = async () => {
   setupOrderEditing();
 };
 
-// Start applikationen når DOM er indlæst
+// Start application when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   initApp();
 });

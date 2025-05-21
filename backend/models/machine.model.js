@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Schema for maskiner
+// Schema for machines
 const machineSchema = new mongoose.Schema(
   {
     machineID: {
@@ -19,17 +19,17 @@ const machineSchema = new mongoose.Schema(
     status: { type: String, required: true, default: "Ledig" },
     order: { type: Number, default: 0 },
   },
-  { timestamps: true } // createdAt og updatedAt tilføjes automatisk
+  { timestamps: true } // createdAt and updatedAt are added automatically
 );
 
-// Pre-save middleware til at sikre, at machineID er unikt
+// Pre-save middleware to ensure machineID is unique
 machineSchema.pre("save", async function (next) {
   if (this.isNew) {
     let isUnique = false;
     let attempts = 0;
     const maxAttempts = 10;
 
-    // Forsøg at generere et unikt machineID
+    // Try to generate a unique machineID
     while (!isUnique && attempts < maxAttempts) {
       const machineID =
         "M" +
@@ -50,7 +50,7 @@ machineSchema.pre("save", async function (next) {
 
     if (!isUnique) {
       return next(
-        new Error("Kunne ikke generere unikt machineID efter flere forsøg")
+        new Error("Could not generate unique machineID after several attempts")
       );
     }
   }

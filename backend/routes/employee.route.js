@@ -9,7 +9,7 @@ import {
 
 const router = express.Router();
 
-// Basis CRUD-operationer
+// Basic CRUD operations
 router.get("/", getEmployees);
 router.get("/:id", getEmployeeById);
 router.post("/", createEmployee);
