@@ -14,6 +14,11 @@ document.addEventListener("DOMContentLoaded", loadMachines);
 
 const API_URL = "/api";
 
+let allMachines = [];
+let searchQuery = "";
+let sortField = "machineID";
+let sortDirection = "asc";
+
 async function loadMachines() {
   try {
     const response = await fetch(`${API_URL}/machines`);
@@ -28,7 +33,21 @@ async function loadMachines() {
       throw new Error("Uventet dataformat returneret fra API");
     }
 
-    renderMachineList(machines);
+    // Sorter maskiner efter navn
+    machines.sort((a, b) => a.name.localeCompare(b.name, "da"));
+
+    console.log("Indlæste maskiner:", machines);
+    allMachines = machines;
+
+    // Opdater sorteringsindstillinger
+    sortField = "name";
+    sortDirection = "asc";
+    if (document.getElementById("sort-field")) {
+      document.getElementById("sort-field").value = "name";
+    }
+    updateSortButtonText();
+
+    filterAndSortMachines();
   } catch (error) {
     console.error("Fejl ved hentning af maskiner:", error);
     machineList.innerHTML = `<p class="text-danger">Der opstod en fejl ved hentning af maskiner: ${error.message}</p>`;
@@ -204,6 +223,78 @@ async function deleteMachine(id, name) {
     alert(`Der opstod en fejl ved sletning: ${error.message}`);
   }
 }
+
+function updateSortButtonText() {
+  const sortIcon = document.getElementById("sort-icon");
+  if (sortDirection === "asc") {
+    sortIcon.className = "bi bi-sort-alpha-down";
+  } else {
+    sortIcon.className = "bi bi-sort-alpha-up";
+  }
+}
+
+function filterAndSortMachines() {
+  let filteredMachines = [...allMachines];
+  if (searchQuery) {
+    const query = searchQuery.toLowerCase();
+    filteredMachines = filteredMachines.filter((machine) => {
+      return machine.name && machine.name.toLowerCase().includes(query);
+    });
+  }
+
+  filteredMachines.sort((a, b) => {
+    const valA = (a[sortField] || "").toString();
+    const valB = (b[sortField] || "").toString();
+    const comparison = valA.localeCompare(valB, undefined, {
+      numeric: true,
+      sensitivity: "base",
+    });
+    return sortDirection === "asc" ? comparison : -comparison;
+  });
+
+  renderMachineList(filteredMachines);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("search-input");
+  const searchButton = document.getElementById("search-button");
+  const sortFieldSelect = document.getElementById("sort-field");
+  const sortDirectionButton = document.getElementById("sort-direction");
+
+  // Lyt efter custom event når maskinernes rækkefølge ændres
+  document.addEventListener("machineOrderUpdated", () => {
+    loadMachines();
+  });
+
+  // Only add search listeners if search elements exist
+  if (searchInput && searchButton) {
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        searchQuery = searchInput.value.trim();
+        filterAndSortMachines();
+      }
+    });
+    searchButton.addEventListener("click", () => {
+      searchQuery = searchInput.value.trim();
+      filterAndSortMachines();
+    });
+  }
+
+  // Only add sort listeners if sort elements exist
+  if (sortFieldSelect && sortDirectionButton) {
+    sortFieldSelect.addEventListener("change", () => {
+      sortField = sortFieldSelect.value;
+      sortDirection = "asc";
+      updateSortButtonText();
+      filterAndSortMachines();
+    });
+    sortDirectionButton.addEventListener("click", () => {
+      sortDirection = sortDirection === "asc" ? "desc" : "asc";
+      updateSortButtonText();
+      filterAndSortMachines();
+    });
+  }
+});
 
 window.editMachine = editMachine;
 window.deleteMachine = deleteMachine;

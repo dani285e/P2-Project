@@ -4,12 +4,117 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bookingsoversigt</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="../styles/projectOverview.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Kun de nødvendige custom styles der ikke kan håndteres med Bootstrap */
+      .timeline {
+        min-height: 500px;
+        padding-bottom: 8rem;
+      }
+
+      .timeline-container {
+        display: table;
+        border-collapse: collapse;
+        min-width: 100%;
+      }
+
+      .timeline-header {
+        display: table-header-group;
+        background-color: #f8f9fa;
+      }
+
+      .timeline-row {
+        display: table-row;
+        border-bottom: 1px solid #dee2e6;
+        transition: background-color 0.2s;
+      }
+
+      .timeline-row.editing {
+        cursor: move;
+      }
+
+      .timeline-row.dragging {
+        opacity: 0.5;
+        background-color: #f8f9fa;
+      }
+
+      .timeline-row:hover {
+        background-color: #f8f9fa;
+      }
+
+      .timeline-cell {
+        display: table-cell;
+        min-width: 130px;
+        padding: 0.75rem;
+        border-right: 1px solid #dee2e6;
+        vertical-align: middle;
+      }
+
+      .timeline-cell.machine-name {
+        position: sticky;
+        left: 0;
+        min-width: 150px;
+        z-index: 10;
+        background-color: #f8f9fa;
+        font-weight: 500;
+        border-right: 2px solid #dee2e6;
+      }
+
+      .booking {
+        position: relative;
+        z-index: 5;
+        border-radius: 4px;
+        padding: 0.5rem;
+        margin: 0.3rem -0.5rem;
+        border: 1px solid transparent;
+      }
+
+      .booking:hover {
+        z-index: 150;
+        filter: brightness(0.95);
+      }
+
+      .booking-tooltip {
+        position: absolute;
+        z-index: 1100;
+        min-width: 250px;
+        display: none;
+        top: 100%;
+        left: 0;
+        pointer-events: none;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .booking:hover .booking-tooltip {
+        display: block;
+      }
+
+      .save-order-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: none;
+      }
+
+      .save-order-btn.visible {
+        display: block;
+      }
+    </style>
   </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">Projektstyringssystem</a>
         <button
@@ -26,9 +131,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="/project"
-                >Projekter</a
-              >
+              <a class="nav-link" href="/project">Projekter</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/employees">Medarbejdere</a>
@@ -37,7 +140,7 @@
               <a class="nav-link" href="/machines">Maskiner</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="/bookings">Bookinger</a>
+              <a class="nav-link active fw-bold" href="/bookings">Bookinger</a>
             </li>
           </ul>
         </div>
@@ -45,33 +148,43 @@
     </nav>
 
     <div class="container mt-4">
-      <div class="text-center mb-4">
-        <h1 class="text-primary">Bookingsoversigt</h1>
-      </div>
-      <div class="card">
-        <div class="d-flex justify-content-between align-items-center mb-3 p-1">
-          <div class="btn-group" role="group">
-            <button id="prevWeek" class="btn btn-outline-primary">
-              « Forrige Uge
-            </button>
-            <span id="currentDateRange" class="btn btn-outline-primary"></span>
-            <button id="nextWeek" class="btn btn-outline-primary">
-              Næste Uge »
-            </button>
+      <h2 class="text-primary mb-3">Bookingsoversigt</h2>
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="btn-group" role="group">
+              <button id="prevWeek" class="btn btn-outline-primary">
+                « Forrige Uge
+              </button>
+              <span
+                id="currentDateRange"
+                class="btn btn-outline-primary px-4"
+              ></span>
+              <button id="nextWeek" class="btn btn-outline-primary">
+                Næste Uge »
+              </button>
+            </div>
+            <div>
+              <button id="todayButton" class="btn btn-primary">I dag</button>
+              <button id="editOrderBtn" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-arrows-move"></i> Rediger Rækkefølge
+              </button>
+              <button id="createBookingBtn" class="btn btn-success ms-2">
+                <i class="bi bi-calendar-plus"></i> Opret Ny Booking
+              </button>
+            </div>
           </div>
-          <button id="todayButton" class="btn btn-primary">I dag</button>
-        </div>
 
-        <div class="timeline" id="bookingTimeline">
-          <p class="loading">Indlæser bookinger...</p>
-        </div>
-        <div class="text-center mb-3">
-            <a id="createBookingBtn" class="btn btn-success">
-              <i class="bi bi-calendar-plus"></i> Opret Ny Booking
-            </a>
+          <div class="timeline" id="bookingTimeline">
+            <p class="text-muted text-center">Indlæser bookinger...</p>
+          </div>
         </div>
       </div>
     </div>
+
+    <button id="saveOrderBtn" class="btn btn-primary save-order-btn">
+      <i class="bi bi-save"></i> Gem Rækkefølge
+    </button>
 
     <!-- Modal for opret/rediger booking -->
     <div
@@ -80,7 +193,6 @@
       tabindex="-1"
       data-bs-backdrop="static"
       data-bs-keyboard="false"
-      style="display: none"
     >
       <div class="modal-dialog">
         <div class="modal-content">
@@ -143,7 +255,7 @@
                 <select id="employees" name="employees" class="form-select">
                   <option value="">Vælg medarbejdere</option>
                 </select>
-                <div class="multi-select">
+                <div class="mt-2">
                   <div id="selectedEmployees" class="selected-items"></div>
                 </div>
               </div>
@@ -206,7 +318,7 @@
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="../../js/services/bookingService.js"></script>
     <script type="module" src="../../js/overview/bookingOverview.js"></script>
   </body>

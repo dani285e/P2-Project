@@ -4,8 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Medarbejderoversigt</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
   </head>
   <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -42,47 +48,60 @@
     </nav>
 
     <div class="container mt-4">
-      <div class="text-center mb-4">
-        <h1 class="text-primary">Medarbejderoversigt</h1>
-      </div>
+      <h2 class="text-primary mb-3">Medarbejderoversigt</h2>
       <div class="card shadow-sm mb-4">
         <div class="row g-2 align-items-center my-3 px-3">
           <div class="col-md-7 col-12">
             <div class="input-group input-group-sm">
-              <input type="text" id="search-input" class="form-control form-control-sm" placeholder="Søg efter medarbejdernummer eller navn..." />
-              <button id="search-button" class="btn btn-primary btn-sm">Søg</button>
-            </div>
-          </div>
-          <div class="col-md-5 col-12">
-            <div class="input-group input-group-sm">
-              <select id="sort-field" class="form-select form-select-sm">
-                <option value="employeeNumber">Sortér efter Medarbejdernummer</option>
-                <option value="name">Sortér efter Navn</option>
-              </select>
-              <button id="sort-direction" class="btn btn-light btn-sm d-flex align-items-center" title="Skift sorteringsretning">
-                <i id="sort-icon" class="bi bi-sort-alpha-up"></i>
+              <input
+                type="text"
+                id="search-input"
+                class="form-control form-control-sm"
+                placeholder="Søg efter medarbejder ID, navn eller afdeling..."
+              />
+              <button id="search-button" class="btn btn-primary btn-sm">
+                Søg
               </button>
             </div>
+          </div>
+          <div class="col-md-3 col-12">
+            <div class="input-group input-group-sm">
+              <select id="sort-field" class="form-select form-select-sm">
+                <option value="employeeID">Sortér efter Medarbejder ID</option>
+                <option value="name">Sortér efter Navn</option>
+                <option value="department">Sortér efter Afdeling</option>
+                <option value="role">Sortér efter Rolle</option>
+              </select>
+              <button
+                id="sort-direction"
+                class="btn btn-light btn-sm d-flex align-items-center"
+                title="Skift sorteringsretning"
+              >
+                <span id="sort-icon" class="bi bi-sort-alpha-up"></span>
+              </button>
+            </div>
+          </div>
+          <div class="col-md-2 col-12 text-end">
+            <a href="/create-employee" class="btn btn-success btn-sm">
+              <i class="bi bi-person-plus"></i> Opret Ny Medarbejder
+            </a>
           </div>
         </div>
         <hr class="my-0" />
         <div id="employee-list" class="card-body">
-          <table class="table table-hover w-100">
-            <thead>
-              <tr>
-                <th>Medarbejdernummer</th>
-                <th>Navn</th>
-                <th>Handlinger</th>
-              </tr>
-            </thead>
-            <tbody id="employee-list-body">
-              <!-- Dynamically populated rows -->
-            </tbody>
-          </table>
-          <div class="text-center mb-3">
-            <a href="/create-employee" class="btn btn-success ms-lg-2">
-              <i class="bi bi-person-plus"></i> Opret Ny Medarbejder
-            </a>
+          <div class="table-responsive">
+            <table class="table table-hover w-100" id="employee-table-v2">
+              <thead>
+                <tr>
+                  <th>Medarbejdernummer</th>
+                  <th>Navn</th>
+                  <th>Handlinger</th>
+                </tr>
+              </thead>
+              <tbody id="employee-list-body">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

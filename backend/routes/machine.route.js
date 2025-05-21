@@ -6,6 +6,7 @@ import {
   updateMachine,
   deleteMachine,
   checkMachineBookings,
+  updateMachineOrder,
 } from "../controllers/machine.controller.js";
 
 const router = express.Router();
@@ -13,11 +14,14 @@ const router = express.Router();
 // GET alle maskiner
 router.get("/", getMachines);
 
-// GET en specifik maskine
-router.get("/:id", getMachineById);
-
 // POST opret ny maskine
 router.post("/", createMachine);
+
+// POST opdater maskine rækkefølge (skal være før /:id routes)
+router.post("/order", updateMachineOrder);
+
+// GET en specifik maskine
+router.get("/:id", getMachineById);
 
 // PUT opdater maskine
 router.put("/:id", updateMachine);

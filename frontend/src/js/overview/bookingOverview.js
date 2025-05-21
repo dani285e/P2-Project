@@ -44,7 +44,10 @@ document.addEventListener("DOMContentLoaded", () => {
     endDate.setDate(startDate.getDate() + 6);
 
     const options = { day: "numeric", month: "short" };
-    currentDateRange.textContent = `${startDate.toLocaleDateString("da-DK", options)} - ${endDate.toLocaleDateString("da-DK", options)}`;
+    currentDateRange.textContent = `${startDate.toLocaleDateString(
+      "da-DK",
+      options
+    )} - ${endDate.toLocaleDateString("da-DK", options)}`;
   }
 
   prevWeekButton.addEventListener("click", () => {
@@ -66,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const bookingModalElement = document.getElementById("bookingModal");
   if (bookingModalElement) {
     new bootstrap.Modal(bookingModalElement, {
-      backdrop: 'static',
+      backdrop: "static",
       keyboard: false,
     });
   }

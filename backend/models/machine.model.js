@@ -16,7 +16,8 @@ const machineSchema = new mongoose.Schema(
       },
     },
     name: { type: String, required: true },
-    status: { type: String, default: "Ledig" },
+    status: { type: String, required: true, default: "Ledig" },
+    order: { type: Number, default: 0 },
   },
   { timestamps: true } // createdAt og updatedAt tilføjes automatisk
 );

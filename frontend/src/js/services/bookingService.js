@@ -17,6 +17,8 @@ let selectedEmployees = [];
 let currentStartDate = new Date();
 let isEditing = false;
 let editingBookingId = null;
+let isOrderEditing = false;
+let machineOrder = {};
 
 // Formatter datoer
 const formatDate = (date) => {
@@ -677,7 +679,7 @@ const renderTimeline = () => {
     const rowColor = generatePastelColor(machine._id);
 
     html += `
-      <div class="timeline-row">
+      <div class="timeline-row" data-machine-id="${machine._id}">
         <div class="timeline-cell machine-name">${machine.name}</div>
     `;
 
@@ -942,6 +944,157 @@ const handleDeleteBooking = async () => {
   }
 };
 
+// Tilføj event listeners for rækkefølge redigering
+const setupOrderEditing = () => {
+  const editOrderBtn = document.getElementById("editOrderBtn");
+  const saveOrderBtn = document.getElementById("saveOrderBtn");
+
+  editOrderBtn.addEventListener("click", () => {
+    isOrderEditing = !isOrderEditing;
+    editOrderBtn.classList.toggle("active");
+    saveOrderBtn.classList.toggle("visible");
+
+    const rows = document.querySelectorAll(".timeline-row");
+    rows.forEach((row) => {
+      if (isOrderEditing) {
+        row.classList.add("editing");
+        row.setAttribute("draggable", "true");
+        row.addEventListener("dragstart", handleDragStart);
+        row.addEventListener("dragover", handleDragOver);
+        row.addEventListener("drop", handleDrop);
+        row.addEventListener("dragend", handleDragEnd);
+      } else {
+        row.classList.remove("editing");
+        row.setAttribute("draggable", "false");
+        row.removeEventListener("dragstart", handleDragStart);
+        row.removeEventListener("dragover", handleDragOver);
+        row.removeEventListener("drop", handleDrop);
+        row.removeEventListener("dragend", handleDragEnd);
+      }
+    });
+  });
+
+  saveOrderBtn.addEventListener("click", saveMachineOrder);
+};
+
+// Drag and drop håndteringsfunktioner
+const handleDragStart = (e) => {
+  e.target.classList.add("dragging");
+  e.dataTransfer.setData("text/plain", e.target.dataset.machineId);
+};
+
+const handleDragOver = (e) => {
+  e.preventDefault();
+  const draggingRow = document.querySelector(".dragging");
+  const rows = [...document.querySelectorAll(".timeline-row:not(.dragging)")];
+
+  const closestRow = rows.reduce(
+    (closest, row) => {
+      const box = row.getBoundingClientRect();
+      const offset = e.clientY - (box.top + box.height / 2);
+
+      if (offset < 0 && offset > closest.offset) {
+        return { offset, element: row };
+      } else {
+        return closest;
+      }
+    },
+    { offset: Number.NEGATIVE_INFINITY }
+  ).element;
+
+  if (closestRow) {
+    closestRow.parentNode.insertBefore(draggingRow, closestRow);
+  } else {
+    // Hvis ingen række er fundet (vi er under den sidste række)
+    // Indsæt den trækkede række efter den sidste række
+    const lastRow = rows[rows.length - 1];
+    if (lastRow) {
+      lastRow.parentNode.insertBefore(draggingRow, lastRow.nextSibling);
+    }
+  }
+};
+
+const handleDrop = (e) => {
+  e.preventDefault();
+  const draggedId = e.dataTransfer.getData("text/plain");
+  const rows = document.querySelectorAll(".timeline-row");
+
+  // Opdater machineOrder objekt
+  rows.forEach((row, index) => {
+    machineOrder[row.dataset.machineId] = index;
+  });
+};
+
+const handleDragEnd = (e) => {
+  e.target.classList.remove("dragging");
+};
+
+// Gem maskine rækkefølge
+const saveMachineOrder = async () => {
+  try {
+    const rows = document.querySelectorAll(".timeline-row");
+    const machineOrders = [];
+
+    rows.forEach((row, index) => {
+      const machineId = row.dataset.machineId;
+      if (machineId) {
+        machineOrders.push({
+          machineId,
+          order: index,
+        });
+      }
+    });
+
+    console.log("Sender rækkefølge opdatering:", machineOrders);
+
+    const response = await fetch(`${API_URL}/machines/order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ machineOrders }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Fejl ved gem af rækkefølge");
+    }
+
+    if (result.success) {
+      showAlert("Rækkefølge gemt", "success");
+
+      // Deaktiver redigerings-tilstand
+      isOrderEditing = false;
+      const editOrderBtn = document.getElementById("editOrderBtn");
+      const saveOrderBtn = document.getElementById("saveOrderBtn");
+
+      editOrderBtn.classList.remove("active");
+      saveOrderBtn.classList.remove("visible");
+
+      // Fjern drag-and-drop funktionalitet
+      const rows = document.querySelectorAll(".timeline-row");
+      rows.forEach((row) => {
+        row.classList.remove("editing");
+        row.setAttribute("draggable", "false");
+        row.removeEventListener("dragstart", handleDragStart);
+        row.removeEventListener("dragover", handleDragOver);
+        row.removeEventListener("drop", handleDrop);
+        row.removeEventListener("dragend", handleDragEnd);
+      });
+
+      // Opdater visningen
+      await refreshData();
+
+      // Udløs event for at opdatere maskineoversigten
+      document.dispatchEvent(new Event("machineOrderUpdated"));
+    } else {
+      throw new Error(result.message || "Ukendt fejl ved gem af rækkefølge");
+    }
+  } catch (error) {
+    console.error("Fejl ved gem af rækkefølge:", error);
+    showAlert("Fejl ved gem af rækkefølge: " + error.message, "danger");
+  }
+};
+
 // Initialiser applikationen
 const initApp = async () => {
   // Indlæs data
@@ -1013,6 +1166,8 @@ const initApp = async () => {
       }
     });
   }
+
+  setupOrderEditing();
 };
 
 // Start applikationen når DOM er indlæst

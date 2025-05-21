@@ -4,7 +4,7 @@ import Booking from "../models/booking.model.js";
 // Hent alle maskiner
 export const getMachines = async (req, res) => {
   try {
-    const machines = await Machine.find({});
+    const machines = await Machine.find({}).sort({ order: 1 });
     res.status(200).json({ success: true, data: machines });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -143,5 +143,52 @@ export const updateAllMachineStatuses = async () => {
     console.log("Alle maskiners status er blevet opdateret");
   } catch (error) {
     console.error("Fejl ved opdatering af maskiners status:", error);
+  }
+};
+
+// Opdater maskine rækkefølge
+export const updateMachineOrder = async (req, res) => {
+  try {
+    const { machineOrders } = req.body;
+
+    if (!Array.isArray(machineOrders)) {
+      return res.status(400).json({
+        success: false,
+        message: "machineOrders skal være et array",
+      });
+    }
+
+    // Valider hver machineOrder
+    for (const order of machineOrders) {
+      if (!order.machineId || typeof order.order !== "number") {
+        return res.status(400).json({
+          success: false,
+          message: "Hver machineOrder skal have machineId og order",
+        });
+      }
+    }
+
+    // Opdater hver maskine i en transaktion
+    for (const { machineId, order } of machineOrders) {
+      const machine = await Machine.findById(machineId);
+      if (!machine) {
+        return res.status(404).json({
+          success: false,
+          message: `Maskine med ID ${machineId} ikke fundet`,
+        });
+      }
+      await Machine.findByIdAndUpdate(machineId, { order });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Rækkefølge opdateret",
+    });
+  } catch (error) {
+    console.error("Fejl ved opdatering af maskine rækkefølge:", error);
+    res.status(500).json({
+      success: false,
+      message: "Intern server fejl ved opdatering af rækkefølge",
+    });
   }
 };
