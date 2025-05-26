@@ -141,6 +141,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Set up sorting functionality
   const sortFieldSelect = document.getElementById("sort-field");
   const sortDirectionButton = document.getElementById("sort-direction");
+
+  // Set initial sort field to match default selection
+  sortFieldSelect.value = sortField;
+
   sortFieldSelect.addEventListener("change", () => {
     sortField = sortFieldSelect.value;
     sortDirection = "asc";
