@@ -44,6 +44,32 @@ const formatTimeOnly = (date) => {
   });
 };
 
+// Format employees for booking display
+const formatEmployeesForBooking = (employeeIDs) => {
+  if (!employeeIDs || employeeIDs.length === 0) {
+    return "Ingen medarbejdere";
+  }
+
+  // Format names as "Fornavn + Efternavn Initial"
+  const formattedNames = employeeIDs.map((employee) => {
+    const nameParts = employee.name.split(" ");
+    if (nameParts.length >= 2) {
+      return `${nameParts[0]} ${nameParts[nameParts.length - 1][0]}`;
+    }
+    return nameParts[0]; // Just first name if no last name
+  });
+  return formattedNames.join(", ");
+  // Handle different cases based on number of employees
+  /*if (formattedNames.length <= 4) {
+    return formattedNames.join(", ");
+  } else {
+    // Show first 2 + count of others
+    const visibleNames = formattedNames.slice(0, 2);
+    const remainingCount = formattedNames.length - 2;
+    return `${visibleNames.join(", ")} +${remainingCount} andre`;
+  }*/
+};
+
 // Get the start of the week (Sunday or Monday)
 const getStartOfWeek = (date) => {
   const newDate = new Date(date);
@@ -419,6 +445,11 @@ const openCreateBookingModal = () => {
   document.getElementById("endTime").value =
     formatDateTimeForInput(oneHourLater);
 
+  // Reset selected employees and update dropdown
+  selectedEmployees = [];
+  renderSelectedEmployees();
+  populateEmployeeSelect();
+
   bookingModal.show();
 };
 
@@ -464,6 +495,7 @@ const openEditBookingModal = (booking) => {
       });
     });
     renderSelectedEmployees();
+    populateEmployeeSelect(); // Update employee dropdown to remove selected employees
   }
 
   bookingModal.show();
@@ -507,6 +539,7 @@ const renderSelectedEmployees = () => {
       const index = parseInt(button.dataset.index);
       selectedEmployees = selectedEmployees.filter((_, i) => i !== index);
       renderSelectedEmployees();
+      populateEmployeeSelect(); // Re-populate to add back removed employee
     });
   });
 };
@@ -554,31 +587,45 @@ const populateEmployeeSelect = () => {
   const select = document.getElementById("employees");
   select.innerHTML = '<option value="">Vælg medarbejdere</option>';
 
-  employees.forEach((employee) => {
+  // Filter out already selected employees
+  const availableEmployees = employees.filter(
+    (employee) =>
+      !selectedEmployees.some((selected) => selected.id === employee._id)
+  );
+
+  availableEmployees.forEach((employee) => {
     const option = document.createElement("option");
     option.value = employee._id;
     option.textContent = employee.name;
     select.appendChild(option);
   });
 
-  // Add change event listener
-  select.addEventListener("change", () => {
-    const selectedId = select.value;
-    if (!selectedId) return;
+  // Add change event listener (only add once)
+  select.removeEventListener("change", handleEmployeeSelection);
+  select.addEventListener("change", handleEmployeeSelection);
+};
 
-    const selectedEmployee = employees.find((e) => e._id === selectedId);
-    if (
-      selectedEmployee &&
-      !selectedEmployees.some((e) => e.id === selectedId)
-    ) {
-      selectedEmployees.push({
-        id: selectedId,
-        name: selectedEmployee.name,
-      });
-      renderSelectedEmployees();
-      select.value = ""; // Reset selector
-    }
+// Handle employee selection - separated for easier management
+const handleEmployeeSelection = () => {
+  const select = document.getElementById("employees");
+  const selectedId = select.value;
+  if (!selectedId) return;
+
+  const selectedEmployee = employees.find((e) => e._id === selectedId);
+  if (!selectedEmployee) {
+    select.value = ""; // Reset selector
+    return;
+  }
+
+  // Add employee (no need to check for duplicates since they're filtered out)
+  selectedEmployees.push({
+    id: selectedId,
+    name: selectedEmployee.name,
   });
+
+  renderSelectedEmployees();
+  populateEmployeeSelect(); // Re-populate to remove newly selected employee
+  select.value = ""; // Reset selector
 };
 
 // Check if two date ranges overlap
@@ -760,9 +807,9 @@ const renderTimeline = () => {
             booking.bookingID
           }" data-machine-id="${machine._id}" style="${style}">
               <div><strong>${projectName}</strong></div>
-              <div>${formatTimeOnly(displayStart)} - ${formatTimeOnly(
-            displayEnd
-          )}</div>
+              <div class="text-muted small">${formatEmployeesForBooking(
+                booking.employeeIDs
+              )}</div>
               <div class="booking-tooltip">
                 <p><strong>Projekt:</strong> ${projectName}</p>
                 <p><strong>Start:</strong> ${formatDateTime(

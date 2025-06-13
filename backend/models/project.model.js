@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const inspectionSchema = new mongoose.Schema({
   selected: { type: Boolean, default: false },
   date: { type: Date },
+  completed: { type: Boolean, default: false },
 });
 
 const projectSchema = new mongoose.Schema(

@@ -76,6 +76,55 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// Helper function to calculate inspection progress for class projects
+function getClassProjectDisplay(project) {
+  if (!project.inspections) {
+    return "Ja (0/0)";
+  }
+
+  const inspectionTypes = [
+    "firstInspection",
+    "wpsWpqr",
+    "ndt",
+    "finalInspection",
+    "report",
+  ];
+  let totalSelected = 0;
+  let totalCompleted = 0;
+  let hasOverdueInspection = false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset tid til midnat for korrekt sammenligning
+
+  inspectionTypes.forEach((type) => {
+    if (project.inspections[type] && project.inspections[type].selected) {
+      totalSelected++;
+      if (project.inspections[type].completed) {
+        totalCompleted++;
+      }
+
+      // Tjek om inspektionen er overskredet og ikke færdig
+      if (
+        project.inspections[type].date &&
+        !project.inspections[type].completed
+      ) {
+        const inspectionDate = new Date(project.inspections[type].date);
+        inspectionDate.setHours(0, 0, 0, 0);
+        if (inspectionDate < today) {
+          hasOverdueInspection = true;
+        }
+      }
+    }
+  });
+
+  const countText = `(${totalCompleted}/${totalSelected})`;
+
+  if (hasOverdueInspection) {
+    return `Ja <span class="text-danger fw-bold" title="En eller flere inspektioner er overskredet">${countText}</span>`;
+  }
+
+  return `Ja ${countText}`;
+}
+
 // Render projects in the table with responsive design
 export function renderProjectsV2(projects) {
   const tbody = document.getElementById("project-list-body-v2");
@@ -105,7 +154,7 @@ export function renderProjectsV2(projects) {
             : "-"
         }</td>
         <td class="d-none d-xl-table-cell">${
-          project.isClassProject ? "Ja" : "Nej"
+          project.isClassProject ? getClassProjectDisplay(project) : "Nej"
         }</td>
         <td>
           <div class="btn-group" role="group">

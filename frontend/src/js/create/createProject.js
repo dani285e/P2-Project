@@ -71,22 +71,27 @@ document.addEventListener("DOMContentLoaded", () => {
         firstInspection: {
           selected: formData.get("firstInspection") === "on",
           date: formData.get("firstInspectionDate") || null,
+          completed: false,
         },
         wpsWpqr: {
           selected: formData.get("wpsWpqr") === "on",
           date: formData.get("wpsWpqrDate") || null,
+          completed: false,
         },
         ndt: {
           selected: formData.get("ndt") === "on",
           date: formData.get("ndtDate") || null,
+          completed: false,
         },
         finalInspection: {
           selected: formData.get("finalInspection") === "on",
           date: formData.get("finalInspectionDate") || null,
+          completed: false,
         },
         report: {
           selected: formData.get("report") === "on",
           date: formData.get("reportDate") || null,
+          completed: false,
         },
       };
     }

@@ -3,6 +3,7 @@ import { getProjectById, updateProject } from "../overview/projectOverview.js";
 
 // Store the MongoDB ID of the current project
 let currentProjectMongoId = null;
+let currentProjectData = null;
 
 // Initialize the edit form when DOM is loaded
 document.addEventListener("DOMContentLoaded", async () => {
@@ -21,6 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Fetch project data and initialize form
     const project = await getProjectById(projectId);
     currentProjectMongoId = project._id; // Store the MongoDB _id
+    currentProjectData = project; // Store the full project data
     populateForm(project);
     setupEventListeners();
   } catch (error) {
@@ -169,6 +171,8 @@ function setInspection(checkboxId, dateInputId, inspectionData) {
   if (inspectionData.selected && inspectionData.date) {
     dateInput.value = formatDateForInput(inspectionData.date);
   }
+
+  // Note: completed status is preserved and not modified in edit mode
 }
 
 // Function to get inspection data from form
@@ -176,8 +180,22 @@ function getInspectionData(checkboxId, dateInputId) {
   const checkbox = document.getElementById(checkboxId);
   const dateInput = document.getElementById(dateInputId);
 
+  // Map checkbox IDs to inspection keys
+  const idToKeyMap = {
+    "first-inspection": "firstInspection",
+    "wps-wpqr": "wpsWpqr",
+    ndt: "ndt",
+    "final-inspection": "finalInspection",
+    report: "report",
+  };
+
+  const inspectionKey = idToKeyMap[checkboxId];
+  const currentInspectionData =
+    currentProjectData?.inspections?.[inspectionKey] || {};
+
   return {
     selected: checkbox.checked,
     date: checkbox.checked ? dateInput.value : null,
+    completed: currentInspectionData.completed || false, // Preserve existing completed status
   };
 }

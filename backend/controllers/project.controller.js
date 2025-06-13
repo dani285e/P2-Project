@@ -101,6 +101,60 @@ export const checkProjectBookings = async (req, res) => {
   }
 };
 
+export const updateInspectionCompleted = async (req, res) => {
+  const { id, inspectionKey } = req.params;
+  const { completed } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Invalid project ID" });
+  }
+
+  const validInspectionKeys = [
+    "firstInspection",
+    "wpsWpqr",
+    "ndt",
+    "finalInspection",
+    "report",
+  ];
+  if (!validInspectionKeys.includes(inspectionKey)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid inspection key" });
+  }
+
+  try {
+    const project = await Project.findById(id);
+    if (!project) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Project not found" });
+    }
+
+    if (!project.isClassProject) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Project is not a class project" });
+    }
+
+    // Update the specific inspection's completed status
+    if (!project.inspections[inspectionKey]) {
+      project.inspections[inspectionKey] = {
+        selected: false,
+        completed: false,
+      };
+    }
+    project.inspections[inspectionKey].completed = completed;
+
+    await project.save();
+    res.status(200).json({ success: true, data: project });
+  } catch (error) {
+    console.error("Error in updating inspection status: ", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
 export const deleteProject = async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
